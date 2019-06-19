@@ -1,0 +1,641 @@
+% !TeX root = ModelswardJournal.tex
+%\documentclass[a4paper,twoside]{article}
+\documentclass[runningheads]{llncs}
+%
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage{subfigure}
+\usepackage{calc}
+\usepackage{amssymb}
+\usepackage{amstext}
+\usepackage{amsmath}
+%\usepackage{amsthm}
+\usepackage{multicol}
+\usepackage{pslatex}
+ 
+\usepackage{url}
+%\usepackage{SCITEPRESS}  % Please add other packages that you may need BEFORE the SCITEPRESS.sty package.
+ 
+ 
+\begin{document}
+	
+\title{Metadata Management and Exchange }
+		
+\author{David Milward}
+		%
+		\authorrunning{David Milward}
+		% First names are abbreviated in the running head.
+		% If there are more than two authors, 'et al.' is used.
+		%
+		\institute{Oxford University, Oxford UK
+			\email{david.milward@cs.ox.ac.uk}\\
+			\url{http://www.cs.ox.ac.uk} }
+		%
+		\maketitle              % typeset the header of the contribution
+	
+
+	
+	\begin{abstract}
+		
+		Data analysis depends on good data, and that means having data in a form that can be consistently queried, profiled and managed easily and repeatedly. The healthcare sector, in particular the growing field of personalised medicine, has some of the most complex and diverse datasets. However they are heterogeneous datasets, and not always easy to fuse into a form that is useful for data scientists charged with analysis. This paper describes key factors needed to automate the process of integrating such datasets, it is based upon experience working with standards-compliant metadata registries in precision medicine.
+		
+		
+		
+	
+%You have to be very careful about “double publication issues”. Generally you can write up a paper for a journal based on a conference paper but some editors are more difficult than others. You have to cite the conference paper and usually %the journal paper needs to be larger. Be careful about self-plagiarism and if you are re-using figures make sure to state the source and preferrably “redraw” them and say so in the figure legend [Fig. 1. What I did with the mice (redrawn after %Bloggs et al., 2016)].
+
+%Some extra points. If you submit a paper and do not mention the conference paper you are ask...
+		
+	\end{abstract}
+	%
+	
+	%
+	\section{Introduction}
+	
+	This study extends the work in Model Driven Engineering in Healthcare~\cite{modelsward19}, it provides more detail on the methods used to arrive at the metamodel and core language developed, as well detailing experiments carried out in mapping of ontologies, vocabularies and data models.
+	
+	
+	\section{Related Work}
+	
+	
+	
+	
+	\section{Background}
+	
+	
+	\subsection{Health Data Standards}
+	
+	
+	\subsection{ISO11179}
+		Metadata can be recorded using a metadata registry; a metadata registry (MDR) is a toolkit which allows definitions of datasets to be stored, curated and managed. Metadata is usually defined as \emph{data about data}; this is an unfortunate definition, in that it can be interpreted in a variety of ways. Our work relates to data management and for most data management purposes it is normally taken to mean data which defines the structure of data, although data about the governance, provenance and other aspects of that data can also be relevant, and thus included in a metadata registry. By storing the definitions of every data element and also the relationships between data elements in a metadata registry a map of all the data elements and data flows in an organization or domain can be created. Such a \emph{map} can be used to manage, understand and curate the datasets being used. The ISO standard 11179 is a standard for metadata registries, although this designation is extended in the body of the standard.
+	
+	The ISO11179 \cite{ISO11179} standard, was issued in 2015, is composed of 6 parts:
+	\begin{itemize}
+		\item ISO/IEC 11179-1:2015 Framework (referred to as ISO/IEC 11179-1)
+		\item ISO/IEC 11179-2:2005 Classification
+		\item ISO/IEC 11179-3:2013 Registry metamodel and basic attributes
+		\item ISO/IEC 11179-4:2004 Formulation of data definitions
+		\item ISO/IEC 11179-5:2015 Naming and identification principles
+		\item ISO/IEC 11179-6:2015 Registration	
+	\end{itemize}
+	The standard is comprehensive, however we are only considering some key aspects of Part 3 in this research. Part 7 called \emph{Datasets}, is planned and is currenly under review. This introduces a metamodel for datasets into the standard, however this was not readily available at the time that this research was carried out, and is not considered here. To quote from the standard itself:
+	\begin{quote}
+		ISO/IEC 11179 addresses the semantics of data, the representation of data and the registration of the descriptions of that data. It is through these descriptions that an accurate understanding of the semantics and a useful depiction of the data are found. 
+	\end{quote}
+	The purpose of ISO/IEC 11179 is to promote the following:
+	\begin{itemize}
+		\item standard description of data
+		\item common understanding of data across organizational elements and between organizations
+		\item re-use and standardization of data over time, space, and applications
+		\item harmonization and standardization of data within an organization and across organizations
+		\item management of the components of descriptions of data
+		\item re-use of the components of descriptions of data
+	\end{itemize}
+	
+	Part 3 of the standard provides a registry metamodel, specified using UML diagrams, and it was thus chosen as the starting point for building this implementation. There is a warning at the beginning of Part 3, stating that this part \emph{ prescribes a conceptual model, not a physical implementation } This part of ISO/IEC 11179 also prescribes a list of basic attributes (see clause 12) for situations where a full conceptual model is not required or not appropriate. The other 5 parts were used to inform the core metadata registry metamodel as specified in ISO11179: Part 3.
+	
+	
+	\subsubsection{Part 3 - Registry Metamodel and Basic Attributes}
+	The objectives of the metadata registry \emph{metamodel} are defined, in the standard, as:
+	\begin{itemize}
+		\item Providing a unified view of the concepts, terms, value domains and value meanings
+		\item promoting a common understanding of the data described
+		\item providing the specification at a conceptual level to facilitate the sharing and reuse of the contents of the implementations
+	\end{itemize}
+	The standard continues to split the metamodel up into 6 packages, Basic, Registration, Concepts, Binary relations, Data description and Identification, Designation and Definition.
+	%\begin{figure}[ht]
+	%	\centering
+	%	\includegraphics[scale=0.39]{figs/ISOPackages}
+	%	\caption{ISO11179 Metamodel Packages} 
+	%	\label{fig:isopackages}
+	%	\end{figure}
+	In section 4 it is pointed out that clauses 7-9 are needed to implement a \textbf{Concept Systems Registry}, clause 10 will allow the implementation of an \textbf{Extended Concept Systems Registry}, and clause 11 specifies a metadata registry, whereas an \textbf{extended metadata registry} will implement all clauses 7-11. Our initial scope was to implement an extended metadata registry as described in clauses 7-11.
+	
+	\subsubsection{Data Description Package}
+	This package specifies a metamodel for handling \emph{data}, and although it references other packages which are mostly dealing with the more administrative aspects of registering metadata, it primarily puts forward a conceptual metamodel for handling data. Hence for the purposes of data interoperability it is the most relevant part of the standard.
+	
+	The core model given for data description in ISO11179 is that reproduced in Figure~\ref{fig:ddview}, it shows the linkage between a Data Element, a Value Domain, a Conceptual Domain and a Data Element Concept. The area above the dotted red line is defined as the \emph{semantic or conceptual} level, whereas the area below the red dotted line is defined as the \emph{representational} level. The assumption is that the Data Element and Value Domain are objects which are being registered and classified, as per the processes defined in other parts of the standard. 
+	
+	This arrangement can be illustrated by the idea of a visit to the doctor, we can define a concept called \emph{reason for visit to healthcare centre} and call this a data element concept, and from this we would implement a data element called \emph{reason for attendance} and perhaps represent that with a set of enumerated codes, each representing a different reason. In ISO11179 structuring we would split the data element concept into an object class: Person, and a property: Reason for clinic attendance. 
+	
+	
+	\begin{figure}[h]
+		\includegraphics[scale=0.450]{figs/ISO11179SimpleCore}
+		\caption{ISO 11179 Data Description}
+		\label{fig:ddview}
+	\end{figure}
+	
+	
+	\subsubsection{Evaluation of ISO/IEC11179(2013)Part 3}
+	Part 3 of the standard, titled \emph{Registry Metamodel and basic attributes}, and revised in 2013, was taken as the reference point for building the Metadata Registry implementation. In reviewing the standard several problems came to light, especially with regard to implementation, and especially with regard to any kind of conformity. These are listed as:
+	\begin{itemize}
+		\item ISO11179 introduces representational items, such as \emph{Conceptual Domain, Data Element, Data Element Concept, etc}, indicating that they are part of the \emph{standard or ideal metadata registry metamodel} with no indication of how the ISO11179-compliant models so defined are generated, used or related, nor how data can be transformed into this particular model or what the actual advantage is over any other metamodel/model.
+		\item Partial UML models are specified at different levels of granularity, with no explicit connection to show how they relate.
+		\item The text does not allow an overall model to be built with any degree of certainty of whether or not it conforms to the standard.
+		\item Basic types used in the \emph{metamodel} include types which in most computer science contexts would be viewed as derived types, this makes implementation needlessly difficult and confusing.
+		\item The introduction asserts that metadata registry is specified in the form of a conceptual data model, however, despite references to other standards, and a brief explanation in Appendix E, no definitive explanation of what is meant by \emph{conceptual data model} is provided. 
+		\item The examples provided are very concept specific, for instance, the example of country codes works for concepts which are used as a list, but many concepts used in healthcare are not used in such a straightforward fashion. 
+		\item Many concepts and terms are described, some are specified, and some specifications overlap with other definitions; for instance value domains are specified with the same definition that is used to describe data types.
+		\item The UML models provide a great deal of detail for each sub-section of a metadata registry, however no system diagram or clear description is provided, it is therefore impossible to build a working system based on the UML diagrams alone, considerable interpretation is required, which detracts from the specification provided.
+	\end{itemize}
+	The standard is declared as being a standard for metadata registries, and although it contains a lot of disparate ideas on the subject of interoperability which can be applied to a metadata registry, no core set of definitions, core language or metamodel was found that could be used as a measure for conformance.  Standards by definition should be conformed to, and whilst conformance is mentioned, it is lacking a clear set of definitions which can be used as a measurement for conformity.  Therefore the goal of building an ISO11179 \emph{conformant} metadata registry was abandoned early on, when it became apparent that clear objective conformance criteria were not present in the standard, despite the subject of conformance being discussed. That said, there is much in the standard document which can be usefully incorporated into the design of a metadata registry, and development continued with a view to include those aspects of the standards which could be shown to be beneficial to the construction of a metadata registry. 
+	
+	\section{Implementation}
+	In the initial design work, the UML diagrams contained in Part 3 section 11 was taken to be the basic metamodel around which the core metadata registry would be built.
+	%, as shown in Figure~\ref{fig:cvview}.
+	
+	%\begin{figure}[h]
+	%	\includegraphics[scale=0.35]{figs/ConceptualAndValueDomain}
+	%	\caption{ISO 11179 Conceptual And Value Domain}
+	%	\label{fig:cvview}
+	%	\end{figure}
+	As detailed here, this very quickly became unworkable, mostly as a result of user's being unable to translate data structures into the form dictated by the ISO11179 metamodel.
+	
+	\subsection{Implementation of ISO11179  UML Metamodel}
+	
+	Initially work began by implementing the UML models as specified in the standard (part 3, section 11), however when the initial prototype was run, many pieces of information were identified as being loaded more than once. Due to the model provided, there is an overlap of the \emph{conceptual structure} of the metamodel, and the \emph{logical structure} of the metamodal, although no such reference is available in the standard itself. Initially a basic domain model was built, using a Grails 2.4.3 toolkit, using the following basic representational items shown in the first column of Table~\ref{tab:metamodelconstructs}
+	
+	The work was then shown to analysts and clinicians experienced in building healthcare datasets, with a view to having them enter suitable datasets and then take part in developing the data set curation functionality around the ISO11179 conformant metamodel.
+	
+	\subsection{Concerns over ISO11179 Conformance}
+	The first major problem was in specifying exactly what metadata should be input into the prototype metadata registry, in particular how to translate or transform existing models or meta-models into the set of constructs defined and discussed in the standard. To illustrate this issue, consider taking a data item from an existing medical dataset, in this case COSD, as shown in figure~\ref{fig:cosdreferral}.
+	
+	\begin{figure*}[h]
+		\includegraphics[scale=0.36]{figs/COSD_BreastCancerReferrals}
+		\caption{COSD Dataset Excerpt}
+		\label{fig:cosdreferral}
+	\end{figure*}
+	
+	Using ISO11179 we take the \emph{date of clinical assessment} as a data element, however it would be specified with the patient details, since conceptually one would need to describe the context of the data item, this results in a data element which has an object property of \emph{patient} as an integral part of the construct. This is illustrated in Table~\ref{tab:isoobjects}
+	\begin{table}[h]
+		\begin{center}
+			\caption{ISO11179 Cancer Referral Representation}
+			\label{tab:isoobjects}
+			\begin{tabular}{ p{2cm} | p{4cm}  } 
+				\textbf{ISO Artefact} & \textbf{Description} \\
+				\hline
+				Data Element & Patient and Date of clinical Assessment in form ccyy-mm-dd  \\ 
+				\hline
+				Data Element Concept & Patient and Date of clinical Assessment  \\ 
+				\hline
+				Value Domain & Date in form ccyy-mm-dd \\ 
+				\hline
+				Object Class & Patient\\
+				\hline
+				Property& Diagnosis Date \\
+			\end{tabular}
+		\end{center}
+	\end{table}
+	
+	However if one is trying to enter the metadata for the \emph{Date of Clinical Assessment} shown in the first row of~figure\ref{fig:cosdreferral}, there is an immediate disparity in that no object class is specified, available or immediately obvious from the spreadsheet. There is mention of the outpatient or patient in the description, however it is not in the view of the analyst preparing the dataset of any significance, and therefore was not included in a separate column. Therefore there is immediately a dilemma, do we enter \emph{outpatient, patient} or simply leave the object property blank? The next issue is the idea of having the data element, if we drop the \emph{Patient} from the name and then call the data element \emph{Date of Clinical Assessment}, what then is the \emph{Data Element Concept}? and how is it different from the description of the \emph{Data Element}? Should the Data Element Concept include the patient? There is no obvious answer, and from a user perspective it appears that a simple set of dataset metadata, i.e. column headings on a spreadsheet, are being transformed into something more complex in order to manage them, but that management can only be carried out by experts versed in ISO/IEC11179.
+	
+	\subsubsection{User Difficulties}
+	In the first few weeks of trying to enter standard existing healthcare datasets into the prototype metadata registry many objections were encountered from users experience with existing healthcare datasets, of the kind documented in the previous section. Metadata was seen to be entered twice or three times needlessly, the difference between the description of a \emph{Data Element} and a \emph{Data Element Concept} was not understood. Likewise the difference between a \emph{Value Domain} and a \emph{Data Type} whilst apparent in theory, was in practise not apparent, since the models being generated were not implementation specific. Therefore a representation of a set of numerical values would in nearly all cases be represented by the same data type, for instance the \emph{date of clinical assessment} would have a value domain of \emph{date} and a data type of \emph{date}, which would then be implemented in a particular system as appropriate, e.g. text string, org.joda.time.format.DateTimeFormat as appropriate by the system concerned. 
+	
+	\subsection{Update to Meta-Model}
+	After a few weeks it was decided to update the metamodel, at first, the number of ISO11179 elements was reduced, however this still didn't gain any traction with users, who found the system confusing, non-intuituve, time-consuming and needing a lot of extra work to understand the new language constructs introduced by the standard. As a result the development went through a two iterations to arrive at the current model, the initial prototype we refer to as version 0.x, the second as 1.x and the third as 2.x. The third, has been fairly successful as is being used at over 7 hospital trusts and healthcare research centres in the UK currently. The changes in core constructs are shown in Table~\ref{tab:metamodelconstructs}.
+	%, and a screen shot of the metadata registry after the first iteration shown in Figure~\ref{fig:mdr1}
+	
+	\begin{table}[h]
+		\begin{center}
+			\caption{Metamodel Domain Constructs}
+			\label{tab:metamodelconstructs}
+			\begin{tabular}{ p{3cm} | p{3cm}  } 
+				\textbf{ISO Artefact (v.0.x)} &  \textbf{Iteration 2 (v.2.x)} \\
+				\hline
+				Described Conceptual Domain &   -  \\ 
+				\hline
+				Object Class &  DataClass     \\ 
+				\hline
+				Property &   -   \\ 
+				\hline
+				Data Element Concept &   -   \\
+				\hline
+				Data Element &    DataElement \\
+				\hline
+				DataType &  DataType  \\
+				\hline
+				Value Domain &   -\\
+				\hline
+				Described Value Domain &  -    \\
+				\hline
+				Enumerated Value Domain &   EnumeratedType    \\
+				\hline
+				Permissible Value &  -  \\
+				\hline
+				Enumerated Conceptual Domain &  -    \\
+				\hline
+				Relations & Relationship   \\
+				\hline
+				- &  RelationshipMetadata \\
+				\hline
+				- &  RelationshipType \\
+				\hline
+				Classification &  - \\
+				\hline
+				Concept System  &    \\
+				\hline
+				Concept  & -   \\
+				\hline
+				Classifiable Item & CatalogueElement  \\
+				\hline
+				Measurement Unit & MeasurementUnit \\
+				\hline
+				Measure Class &   -  \\
+				\hline
+				Dimensionality &   -  \\
+				\hline
+				- & Asset \\
+				\hline
+				- & AssetFile \\
+				\hline
+				- &   ExtensionValue  \\
+				\hline
+				-  & Mapping  \\
+				\hline
+				- &  DataModel  \\
+				\hline
+				- &   DataModelPolicy \\
+				\hline
+				- &   PrimitiveType \\
+				\hline
+				- &   ReferenceType \\
+				\hline
+				- &   Tag \\
+				\hline
+				- &   ValidationRule \\
+			\end{tabular}
+		\end{center}
+	\end{table}
+	
+	
+	% \begin{figure}[h]
+	%	\includegraphics[scale=0.13]{figs/MCV1_UI}
+	%	\caption{MDR UI (v1.x)}
+	%	\label{fig:mdr1}
+	% \end{figure}
+	The first iteration resulted in version 1.x of the metadata registry, which went into service in Genomics England in 2015, however it met with many criticisms from users, and a complete overhaul was undertaken. This time a different approach was used, and the basic metamodel redeveloped, informed more by feedback from data analysts than reliance on the ISO/IEC11179 standard. The domain metamodel was developed using XText, which allowed for the fast iterative development of the metamodel, using the Eclipse toolkit. Once this was established the domain model was implemented using the Grails framework (v2.5.6), which allowed much of the existing codebase to be re-used.
+	-----
+	
+	
+	Description - as previous
+	
+	-------
+	\subsubsection{Semantic Interoperability}
+	
+	One of the key concepts behind ISO11179 is that of semantic interoperability, and although semantic interoperability is not directly referrenced in the standard, there are many references to the \emph{semantics} of a data element, and how this can be assigned to data element by application of the standard. For instance part One states that "Metadata registries (MDR), addresses the semantics of data, the	representation of data, and the registration of the descriptions of that data. It is through these descriptions that an accurate understanding of the semantics and a useful depiction of the data are found.". The text continues with "An MDR manages the semantics of data.". 
+	
+	Users of ISO11179 metadata registries assert that if a data element has the same object class and property then this is sufficient to capture the semantics and context of a data element. If the semantics are captured in this way then 2 data elements can be compared and shown to be semantically equivalent. The flaw in this argument is that the object class and property are determined by the data curators definitions, and it is possible even if the two data elements being compared are semantically identical they may have differences in naming which prevent them showing up as being semantically equivalent.  Users of ISO11179 conformant metadata registries also claim that semantic equivalance can be achieved through careful classification and naming of data elements, Part 1 A.5.2 states that :"All this means care must be applied when using the MDR, both from the metadata management perspective and the perspective of the user of data described by it. Two different organizations might register descriptions of equivalent data in the form of data elements, yet those data elements might look substantially different. Looked at in a different way, just because two data element descriptions differ does not mean they cannot be describing similar if not equivalent data." 
+	
+	Thus the standard acknowledges that while it strives to include semantics into the canonical metadata registry design, it does not put forward way of making the semantics machine readable and thus automatic. The ability to match two data elements depends on how the object class, property and other entities are defined, which is prone to interpretation and human error.
+	
+	
+	
+	
+%	
+%	Part One:
+%	In the opening paragraph:
+%	Metadata registries (MDR), addresses the semantics of data, the
+%representation of data, and the registration of the descriptions of that data. It is through these descriptions
+%that an accurate understanding of the semantics and a useful depiction of the data are found.
+%
+%An MDR manages the semantics of data. Understanding data is fundamental to its design, harmonization,
+%standardization, use, re-use, and interchange. The underlying model for an MDR is designed to capture all
+%the basic components of the semantics of data, independent of any application or subject matter area.
+%MDR's are organized so that those designing applications can ascertain whether a suitable object described
+%in the MDR already exists. Where it is established that a new object is essential, its derivation from an
+%existing description with appropriate modifications is encouraged, thus avoiding unnecessary variations in the
+%way similar objects are described. Registration will also allow two or more administered items describing
+%identical objects to be identified, and more importantly, it will help to identify situations where similar or
+%identical names are in use for administered items that are significantly different in one or more respects.
+%In ISO/IEC 11179 the basic container for data is called a data element. It may exist purely as an abstraction
+%or exist in some application system. In either case, the description of a data element is the same in ISO/IEC
+%11179. Data element descriptions have both semantic and representational components. The semantics are
+%further divided into contextual and symbolic types.
+%The contextual semantics are described by the data element concept (DEC). The DEC describes the kind of
+%objects for which data are collected and the particular characteristic of those objects being measured. The
+%symbolic semantics are described by the conceptual domain (CD). A CD is a set of concepts, not necessarily
+%finite, where the concepts represent the meaning of the permissible values in a value domain. A value
+%domain contains the allowed values for a data element.
+%The names, definitions, datatype, and related attributes that are associated with the description of an object in
+%an MDR give that object meaning. The depth of this meaning is limited, because names and definitions
+%convey limited information about the object. The relationships object descriptions have with semantically
+%related object descriptions in a registry provide additional information, but this additional information is
+%dependent on how many semantically related object descriptions there are.
+%New to Edition 3 of ISO/IEC 11179 is the introduction of concepts and concept systems in the description of
+%the semantics of data. Object classes, properties, DECs, value meanings, and CDs are concepts. Therefore,
+%they have definitions and may be designated by names or codes. They may also be organized through the
+%use of relations among them into concept systems. A classification scheme is a concept system that is used
+%for classifying some objects, and classification of an object adds meaning to that object.
+%Features needed for formal reasoning are also new to Edition 3. Applying the rules of some form of formal
+%logic (1st order logic, predicate calculus, description logic, etc) may add additional abilities to query and reason
+%with concept systems. Ontologies are concept systems that allow the application of formal logic, and Edition
+%of ISO/IEC 11179 provides for their use.
+%The representational component is about the permitted values a data element may use. Each such
+%permissible value is a designation of one of the concepts in the CD. The set of these permissible values is
+%called a value domain (VD). A VD specifies all the values that are allowed either through an enumeration, a
+%rule, or a combination of these. The computational model the values follow is given by their datatype.
+%The semantic and representational components are described through attributes contained in the conceptual
+%model of a metadata registry as specified in ISO/IEC 11179-3. A metadata registry that conforms to ISO/IEC
+%11179 can describe a wide variety of data. In fact, the attributes described in Part 3 are data elements, and
+%they can be registered in an ISO/IEC 11179 metadata registry. Moreover, any set of descriptors or metadata
+%attributes may be interpreted as data elements and registered in the metadata registry.
+%
+%3.1.2
+%class
+%description of a set of objects that share the same attributes, operations, methods, relationships, and
+%semantics
+%
+%3.3.39
+%value meaning
+%semantic content of a possible value
+%
+%6.2.1 General
+%New to the 3rd edition of ISO/IEC 11179 is the notion of concepts; their definitions, designations, and
+%relationships; their uses in the description of data; and their management in a MDR. This sub-clause gives a
+%small introduction to the uses of concepts in describing data. Several data constructs used in ISO/IEC 11179
+%are concepts. They are data element concept, object class, property, conceptual domain, and value meaning.
+%These are discussed in more detail in sub-clauses 6.3 and 6.5.
+%The semantics of data come from the concepts used in their descriptions. The meanings of all the concepts
+%used to describe a datum are combined into a story, sometimes called a fact. This is equivalent to the
+%information conveyed by some datum.
+%As ISO/IEC 11179-5 describes, the names for data elements, which may convey some of the semantics of
+%their underlying data, can be constructed from the designations of their constituent concepts. So, for some
+%datum, the story it conveys might be written as “The temperature in Washington, DC at the bottom of the
+%Washington Monument on 14 June 2013 at 1600 ET was 78°F”. The designations of concepts (temperature;
+%Washington, DC; Washington Monument, 1600 ET, and 78°F) are interspersed with English words to create a
+%sentence, which contains the story.
+%Finally, the relationships some concepts have with others, as defined in a concept system and described in
+%ISO/IEC 11179-2, add semantics to data. For instance, the concept of a temperature measurement is
+%different if it is a measure of the kinetic activity of molecules of air in some location on Earth versus a measure
+%of ambient infra-red radiation in inter-planetary space between Jupiter and Saturn. In both cases, instances of
+%temperature are ultimately measures of infra-red radiation, but they are obtained far differently.
+%
+%Finally, the relationships some concepts have with others, as defined in a concept system and described in
+%ISO/IEC 11179-2, add semantics to data.
+%
+%8.1.5 Part 5
+%ISO/IEC 11179-5, Naming principles, provides guidance for the designation of administered items.
+%Designation is a broad term for naming or identifying a particular data construct.
+%Names are applied to data constructs through the use of a naming convention. Naming conventions are
+%algorithms for generating names within a particular context. There are semantic, syntactic, and lexical rules
+%used to form a naming convention. Names are a simple means to provide some semantics about data
+%constructs, however the semantics are not complete. Syntactic and lexical rules address the constituents
+%(e.g., allowable characters), format, and other considerations.
+%
+%
+%	
+%	Part three:
+%	
+%	4.13.1.4 states:
+%	By using representation class, enha
+%	nced semantic control over the contents of value domains can be maintained. Rules can be drawn against representation classes that allow enforcement of content within and among value domains.
+%	
+%	Section 5.2.2 states in a note:
+%	NOTE Where multiple definitions are assigned to the same metadata item, the semantics of the definition should be the same across all contexts. (If the semantics are different, separate metadata items should be specified.) However, the terminology used to express the semantics may need to be different in different contexts, and thus separate definitions are permitted for each context.
+%	
+%	Part 5
+%	
+%	7 Naming conventions
+%372 A naming convention describes what is known about how names are formulated. A naming convention may
+%373 be simply descriptive; e.g., where the Registration Authority has no control over the formulation of names for a
+%374 specific context and merely registers names that already exist. Alternatively, a naming convention may be
+%375 prescriptive, specifying how names shall be formulated, with the Registration Authority (or an equivalent
+%376 authority) expected to enforce compliance with the naming convention. The objectives of a prescriptive
+%377 naming convention may include name consistency, name appearance, and name semantics.
+%
+%9.4 Semantic principle
+%483 Semantics concerns the meanings of name parts and possibly separators that delimit them. The set of
+%484 semantic rules documents whether or not names convey meaning, and if so, how. Name parts may be
+%485 derived from structure sets that identify relationships among (classify) members. See annexes A and B for
+%486 examples of semantic rule sets.
+%487
+%488 The semantic rules of each naming convention represented in the MDR should be documented
+%
+%A.2 Semantics of name parts
+%561
+%562 Name parts consist of discrete terms. The terms in this annex are derived from designatable items and other
+%563 items in the MDR metamodel described in ISO/IEC 11179-3. They may be derived from concept system
+%564 items as described in clause 10. Name parts are designated by names ending with "term" to differentiate
+%565 them from the entities in Part 3 from which they are derived. These are: object class terms, property
+%566 terms, and representation terms. These terms are presented as examples of the application of semantic
+%567 principles to name formation. Qualifier terms are used to further differentiate terms as necessary.
+%568
+%569 Object class term
+%570
+%571 In the MDR metamodel, an object class is a set of ideas, abstractions or things in the real world that
+%572 are identified with explicit boundaries and meaning, and whose properties and behaviour follow the same
+%573 rules. Each object class has a name. The registration of object classes in a registry is optional, but if used,
+%574 the set of actual and potential object class names provides a taxonomy of object class terms.
+%575
+%576 An object class term may be a part of the name of the designatable items concept, conceptual domain,
+%577 data element concept and data element, and represents an activity or object in a context. Use of a
+%578 modelling methodology, as for instance a model described using OWL and documented as a Concept
+%579 System in the MDR, is a way to locate and discretely place designatable items in relation to their higher580
+%level model entities.
+%581
+%582 Models provide one kind of classification scheme for designatable items. Designatable items that contain
+%583 object classes may be identified with their related modelling entities by mapping the object class term to the
+%584 model entity name.
+%585
+%586 In the data element names
+%587
+%588 Employee Last Name
+%589
+%590 Cost Budget Period Total Amount
+%591
+%592 Tree Height Measure
+%593
+%594 Member Last Name
+%ISO/IEC DIS 11179-5:2013(E)
+%©ISO/IEC 2013 - All rights reserved 13
+%595
+%the terms Employee, Cost, Tree, and Member 596 are object class terms.
+%597
+%598
+%599 Object class terms may be used by themselves as concept and conceptual domain names.
+%600
+%601 Property term
+%602
+%603 In the MDR metamodel, a property is a quality common to all members of an object class. Each property
+%604 has a name. The registration of properties in a registry is optional, but if used, the set of actual and
+%605 potential property names provides a taxonomy of property terms.
+%606
+%607 A set of property terms may be composed from a set of name parts in a property taxonomy. This set
+%608 should consist of terms that are discrete (the definition of each does not overlap the definition of any
+%609 other), and complete (taken together, the set represents all information concepts required for the
+%610 specification of designatable items which use properties, such as data elements, data element concepts and
+%611 value domains). These terms may be taken from the same Concept system as the object class terms or
+%612 may be derived from a separate structure set.
+%613
+%614 In the data element names
+%615
+%616 Employee Last Name
+%617
+%618 Cost Budget Period Total Amount
+%619
+%620 Member Last Name
+%621
+%622 Tree Height Measure
+%623
+%624 the terms Last Name, Total Amount, and Height are properties.
+%625
+%626 Using terms from two structure sets provides a complementary way of categorization. Both object class
+%627 and property terms of data element concepts and data elements are utilized to form a name that contains
+%628 vital information about these designatable items, and also excludes extraneous or irrational elements that
+%629 may be introduced when no conventions are employed. Data element concept names may be
+%630 composed by combining object class terms and property terms.
+%631
+%632 Representation term
+%633
+%634 A representation term may be a part of an designatable item name that describes the form of
+%635 representation of an designatable item that includes representation: data elements and value domains.
+%636 Each term may be developed from a controlled word list or taxonomy. In the MDR metamodel, a
+%637 Representation Class is the classification of types of representation. Each representation class has a
+%638 name. The registration of representation classes in a registry is optional, but if used, the set of actual and
+%639 potential representation class names provides a taxonomy of representation class terms. Annex F of
+%640 ISO/IEC 11179-3 discusses using a Representation Class classification scheme as a concept system.
+%641
+%642 Representation terms categorize forms of representation such as
+%643
+%644 - Name - Amount
+%645
+%646 - Measure - Number …
+%647
+%648 - Quantity - Text
+%649
+%ISO/IEC DIS 11179-5:2013(E)
+%14 ©ISO/IEC 2013 - All rights reserved
+%This term describes the form of the set of valid values of an designatable 650 item which includes
+%651 representation. Often, the representation term may be redundant with part of the property term. When this
+%652 occurs, one term or part of one term may be eliminated in a structured name. This can be established
+%653 as a rule in a naming convention.
+%654
+%655 Using the above rules, a data element describing a measurement of the height of a tree would have the
+%656 data element name Tree Height Measure. The word Measure is the data element’s representation term.
+%657 However, a data element that describes the last name of a person would have the data element name of
+%658 Person Last Name Name. The second word Name is the data element’s representation term. However, to
+%666509 promote clarity, one occurrence of the redundant word is removed.
+%661
+%662 Qualifier term
+%663
+%664 Qualifier terms may be attached to object class terms, property terms, and representation terms if
+%665 necessary to distinguish one data element concept, conceptual domain, data element, or data value domain
+%666 from another. These qualifier terms may be derived from structure sets specific to a context. In the rules for
+%667 a naming convention, a restriction in the number of qualifier terms is recommended.
+%668
+%669 For example, in the data element name
+%670
+%671 Cost Budget Period Total Amount
+%672
+%673 the term Budget Period is a qualifier term.
+%674
+%675 NOTE 1: Limitations in the form of permitted terms of qualifiers help reduce redundancy and increase incidence of data
+%676 reuse by eliminating synonyms. This applies also to object class terms, property terms, and representation terms. A
+%677 mechanism such as a thesaurus of terms facilitates this effort.
+%678
+%679 NOTE 2: Because of a change to the cardinality of the relationship between Data Element Concept and Conceptual
+%680 Domain in 11179 Part 3 Edition 3, the qualifier term construct is now of enhanced importance.
+%681
+%682 Semantics of separators
+%683
+%684 Various kinds of punctuation connect name parts, including separators such as spaces and hyphens,
+%685 and grouping symbols such as parentheses. These may have:
+%686
+%687 a) No semantic meaning. A naming rule may state that separators will consist of one blank space or
+%688 exactly one special character (for example a hyphen or underscore) regardless of semantic relationships
+%689 of parts. Such a rule simplifies name formation.
+%690
+%691 b) Semantic meaning. Separators can convey semantic meaning by, for example, assigning a
+%692 different separator between words in the qualifier term from the separator that separates words in the
+%693 other part terms. In this way, the separator identifies the qualifier term clearly as different from the rest of
+%694 the name.
+%695
+%696 For example, in the data element name
+%697
+%698 Cost_Budget-Period_Total_Amount
+%699
+%700 the separator between words in the qualifier term is a hyphen; other name parts are separated
+%701 by underscores.
+%702
+%703 Some languages, such as German and Dutch, commonly join grammatical constructs together in a
+%704 single word (resulting in one word which in English or French might be a phrase consisting of nouns and
+%705 adjectives). These languages could use a separator that is not a break between words, such as a
+%706 hyphen, space or underscore, but instead capitalize the first letter of each name part within a single word
+%ISO/IEC DIS 11179-5:2013(E)
+%©ISO/IEC 2013 - All rights reserved 15
+%(sometimes called CamelCase). This naming convention is also commonly used in 707 programming languages
+%708 such as C++ and Java.
+%709
+%710 Asian languages often form words using two characters which, separately, have different meanings, but
+%711 when joined together have a third meaning unrelated to its parts. This may pose a problem in the
+%712 interpretation of a name because ambiguity may be created by the juxtaposition of characters. A possible
+%713 solution is to use one separator to distinguish when two characters form a single word, and another when
+%714 they are individual words.
+%715
+%716 The following table indicates which name parts are combined to form administrative item names. See A.5
+%771187 for examples of designatable items with related names.
+%719
+%720
+%721
+%722 Table A.1 — Relationship of name parts to designatable item names
+%723
+%Conceptual
+%Domains
+%Data Element
+%Concepts Data Elements Value Domains
+%Object Class Terms X X X
+%Property Terms X X
+%Representation
+%Terms X X
+%Qualifier Terms X X X X
+%
+%Part 6
+%
+%5.2.2 Metadata Registry Contents and Levels of Conformance
+%760 Responsible organizations may have an impact on the content of individual attributes of each Administered
+%761 Item. Responsible organizations do not have the purview on the composition of the registry itself, i.e., what
+%762 specific metadata attributes to include with each Administered Item. The Registration Authority specifies the
+%763 requirements. For example, while the Registration Authority determines, in accordance to this Standard, each
+%764 Administered Item must have a definition, the Responsible Organization ensures that the definition of a
+%765 metadata item is semantically correct.
+%
+%Part 2 : Concept Systems
+%There are several purposes for applying classification to real world objects. Classification assists users to find
+%a single object from among a large collection of objects, facilitates the administration and analysis of a
+%collection of objects, and, through inheritance, conveys semantic content that is often only incompletely
+%specified by other attributes, such as names and definitions.
+%
+%Part 4:
+%1 Scope
+%This part of ISO/IEC 11179 specifies requirements and recommendations for constructing definitions for data
+%and metadata. Only semantic aspects of definitions are addressed; specifications for formatting the definitions
+%are deemed unnecessary for the purposes of ISO/IEC 11179. While especially applicable to the content of
+%metadata registries as specified in ISO/IEC 11179-3, this part of ISO/IEC 11179 is useful broadly for
+%developing definitions for data and metadata.
+
+
+
+	
+	\section{Metamodel}
+	\section{Metadata Management Language (MDML)}
+	\section{Tranforming Models and Metadata}
+	\subsection{Transformation Experiment}
+	\subsection{Experimental Results}
+	\section{Results}
+	\section{Discussion}
+	\section{Conclusion}
+	
+	
+	
+	\section{Acknowledgements}
+	I would like to acknowledge the help of Adam Milward, Kathy Farndon, Amanda O'Neill and Samuel Hubble at Genomics England, and Jim Davies, Charles Crichton, Steve Harris and James Welch at the University of Oxford.
+%	\bibliographystyle{apalike}
+%{\small
+%	\bibliography{ModelswardJournal}}
+
+\bibliographystyle{splncs04}
+\bibliography{MDEJournal}
+	
+	
+\end{document}

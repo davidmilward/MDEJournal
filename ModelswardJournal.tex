@@ -12,6 +12,10 @@
 %\usepackage{amsthm}
 \usepackage{multicol}
 \usepackage{pslatex}
+\usepackage{float}
+\usepackage[strings]{underscore}
+\usepackage{placeins}
+
  
 \usepackage{url}
 %\usepackage{SCITEPRESS}  % Please add other packages that you may need BEFORE the SCITEPRESS.sty package.
@@ -19,7 +23,7 @@
  
 \begin{document}
 	
-\title{Metadata Management and Exchange }
+\title{Metadata and Data Management }
 		
 \author{David Milward}
 		%
@@ -52,18 +56,104 @@
 	%
 	\section{Introduction}
 	
-	This study extends the work in Model Driven Engineering in Healthcare~\cite{modelsward19}, it provides more detail on the methods used to arrive at the metamodel and core language developed, as well detailing experiments carried out in mapping of ontologies, vocabularies and data models.
+	This study extends the work in Model Driven Engineering in Healthcare~\cite{modelsward19}, which describes experimentation carried out in the healthcare domain aimed at automating dataset curation. One of the fundamental problems in data science is how to derive high quality data from multiple heterogeous sources, and for the most part the process of "data wrangling", getting data from multiple sources into a form which can be analysed, is a highly tedious process involving a high degree of expert guidance in the curation process. This work describes how the principles of model driven engineering can be applied to reduce this involvement, it provides details on a metamodel and domain specific language developed specifically to address this problem, as well detailing experiments carried out in mapping of ontologies, vocabularies and data models.
+	
+	 There is little doubt that the current landcape of the internet and the availability of large amounts of computing power provide a surplus of valuable data, especially in the healthcare domain, from which new knowledge can be obtained. Data is being collected not just in hospitals but on devices used and worn by patients, and this data if correctly matched up can provide valuable feedback on the efficacy of treatment regimes and new drugs. However the capability of the hardware has run far ahead of the abillity of software to integrate that data, always assuming there is willingness to do so. 
+	 
+	 In the first section of this paper we review the kind of data that is collected in the healthcare sector, then in the next section we look at the data standards available and provide an evaluation of their strengths and weaknesses. Also included in this section is a brief overview of the ISO standard for metadata registries (ISO11179) which was taken as a model for the initial experimentation.
+	
+	\subsection{Data}
+	Data exists in many forms, primarily we are concerned in this study with healthcare data, which for the most part is derived from clinical systems and applications, however in this discussion we also consider data from mobile devices, Internet of Things (IOT) devices and social media. Data can be stored in many forms, the following section gives a brief overview of current data storage practise in the healthcare sector.
+	\subsubsection{Spreadsheet and Delimited Date}
+	This is data extracted from databases or spreadsheets, and it is normally stored in a tabular format, with column headings or field names defining the data types of the columns, and with one column containing identifiers to link the data to a patient record. In many cases these data tables are anonymised or pseudonomised, to hide the identity of the patient.
+	\subsubsection{Laboratory Reports}
+	These may also be provided as tabular data, but they normally provided as pdf files, based on a template, with attached media files, containing some sort of laboratory specific data, such as X-Ray images attached. In some cases these will be simple text or numerical time-series data files, in a specific laboratory specific format. Normally these will be linked using a uniques identifier to other patient record information.
+	\subsubsection{XML and JSON}
+	Some data is being provided using JSON and XML, most of this is fairly similar to the tabular data provided from spreadsheets and databases, although potentially the structure can be more complex.
+	\subsubsection{Textual Data}
+	This is data provided in textual reports, normally word or PDF files, it is referred to as unstructured data, although clearly there is some degree of structure in the language which is re-inforced with medical terminology, it is not based on a defined or formal model.
+	\subsubsection{Big Data}
+	This is not yet common in our experience in the healthcare sector, but it is likely to become so in the near future. The standard storage for Hadoop and big data engines is a storage file, of which there are three in common usage: ORC, Parquet and AVRO. The first two are column-based, whilst the last is row-based, the latter also has the ability ot store the complete data schema, i.e. the metadata, in the file.
+	\subsubsection{Relational Database}
+	For the most part the output from relational databases is in text delimited or XML forms, as discussed earlier, there is the possibility to output in a SQL format, but unless the whole database is going to be replicated this is not a flexible way to transfer or move data.
+
+
+	\section{Data Standards}
+	Data Standards are used in healthcare, and are seen as a key component "for unleashing the potential of clinical data for
+   diverse scenarios of (re-) use"~\cite{Schulz2019}. However whilst lip service is paid to their usage, there is a diverse set of standards being used at present, which makes widespread adoption difficult. An outline of some of the different data standards is given in table~\ref{tab:datastandards}
+	 \begin{table}[!htbp]
+		\begin{center}
+			\caption{A Sample of Data Standards in Healthcare}
+			\label{tab:datastandards}
+			\begin{tabular}{ p{3cm} | p{6cm} | p{5cm }  } 
+				\textbf{Name} & \textbf{Description} & \textbf{Source} \\
+				\hline
+				SNOMED CT & Clinical Terminology&  International Health Terminology Standards Development Organisation (IHTSDO)  \\ 
+				\hline
+				HL7 v2/v3  & Messaging Standard &  Health Level Seven International \\
+				\hline
+				OpenEHR  & Open Electronic Health Record, object model and terminology &   openEHR Foundation\\  
+				\hline
+				Fast Healthcare Interoperability Resources (FHIR) & Describes data formats, elements and an API for exchanging electronic health records.&  Health Level Seven International  \\ 
+					\hline
+				NHS Data Dictionary &  Variety of standards for data elements, classifications and value sets &  NHS Digital  \\
+				\hline
+				OMOP Common Data Model  &   A standardised common data model  &  OHDSI \\
+				\hline
+				Clinical Document Architecture (CDA)  &  XML-based markup standard for clinical documents&  Health Level Seven International   \\ 
+				\hline
+				Digital Imaging and Communications in Medicine (DICOM)  & File format and networking protocol for file exchange &   National Electrical Manufacturers Association (NEMA)  \\ 
+					\hline
+				Continuity of Care Record (CCR)  &  The CCR standard is a patient health summary standard &   ASTM International (and others) \\
+					\hline
+				Dataset.XML  &  Protocol for communication of study results  &   Clinical Data Interchange Standards Consortium (CDISC)  \\
+					\hline
+				Laboratory Data Model (LAB)  &  XML format for exchange of laboratory data &  Clinical Data Interchange Standards Consortium (CDISC)  \\
+					\hline
+				Operational Data Model (ODM) &  XML schema for modeling electronic Case Report Forms (CRFs).  &  Clinical Data Interchange Standards Consortium (CDISC)  \\
+					\hline
+				Health informatics - Electronic Health Record Communication (EN 13606/ISO13606)   &  European Standard for an information architecture to communicate Electronic Health Records (EHR) &  International Organization for Standardization.   \\
+					\hline
+				MEDCIN  &  standardized medical terminology, &  Medicomp Systems, Inc  \\
+					\hline
+				Medical Dictionary for Regulatory Activities (MedDRA) &  Clinically validated international medical terminology, dictionary and thesaurus  &   International Federation of Pharmaceutical Manufacturers and Associations (IFPMA) \\
+				\hline
+				RxNorm &  Vocabulary for clinical drugs &  U.S. National Library of Medicines  \\
+			\end{tabular}
+		\end{center}
+	\end{table}
 	
 	
-	\section{Related Work}
+	\FloatBarrier
+	
+	During the course of this work the first six of these data standards were frequently referenced, the others less so or possibly not at all. So we give a brief summary of some of the attributes of the different standards.
+	
+	\subsection{SNOMED CT}
+	SNOMED clinical terminology is a clinical terminology, consisting of medical terms, codes, definitions and relatinships,  Originally called the systemised nomenclature of medicine (SNOMED) in 1975, it has been combined with a number of other terminologies since then to become SNOMED CT, and it is now it is probably the most widely used clinical terminology in the world. It is now defined using description logic, which allows a number of features, probably the most notable is the existence of both pre- and post-coordinated terms. Post-coordinated terms allow new terms to be composed from combinations of exisiting terms using an expression language, however this can result in particular complex terms being expressed using both a pre-coordinated and a post-coordingated term. This complexitity is not popular with many organizations tasked with implementing SNOMED CT. 
+	
+	\subsection{Fast Healthcare Interoprability Resources (FHIR)}
+    Fast Healthcare Interoperability Resources (FHIR) is the latest set of standards from the \emph{Health Level 7} standards body, who previously developeda number of other standards including HL7 Version 2.x Messaging Standard, HL7 Version 3.x Messaging Standard, Continuity of Care Document (CCD) and Clinical Document Architecture (CDA). They have been widely adopted by both the American National Standards Institute (ANSI) and the International Standards Organization (ISO). The standard defines a messaging REST(API) which can exchange resources, these are built using XML or JSON using a pre-defined set of models, describing most instances of data exchange in the healthcare domain.
+    The stand is made up of five main sections:
+    \begin{itemize}
+    	\item Foundations: the core rules for building and structuring XML/JSON resources
+    	\item Implementation support, including terminology, security, exchange rules and conformance
+    	\item Administration
+    	\item Record Keeping
+    	\item Clinical Reasoning
+    \end{itemize}
+		
+	\subsection{International Classification of Diseases (ICD)}
 	
 	
+	\subsection{OpenEHR - ISO EN 13606}
 	
 	
-	\section{Background}
+	\subsection{OMOP CDM}
 	
+	\subsection{LOINC}
 	
-	\subsection{Health Data Standards}
+	\subsection{NHS Data Dictionary}
+	
 	
 	
 	\subsection{ISO11179}
@@ -119,11 +209,11 @@
 	This arrangement can be illustrated by the idea of a visit to the doctor, we can define a concept called \emph{reason for visit to healthcare centre} and call this a data element concept, and from this we would implement a data element called \emph{reason for attendance} and perhaps represent that with a set of enumerated codes, each representing a different reason. In ISO11179 structuring we would split the data element concept into an object class: Person, and a property: Reason for clinic attendance. 
 	
 	
-	\begin{figure}[h]
-		\includegraphics[scale=0.450]{figs/ISO11179SimpleCore}
-		\caption{ISO 11179 Data Description}
-		\label{fig:ddview}
-	\end{figure}
+%	\begin{figure}[h]
+%		\includegraphics[scale=0.450]{figs/ISO11179SimpleCore}
+%		\caption{ISO 11179 Data Description}
+%		\label{fig:ddview}
+%	\end{figure}
 	
 	
 	\subsubsection{Evaluation of ISO/IEC11179(2013)Part 3}
@@ -160,11 +250,11 @@
 	\subsection{Concerns over ISO11179 Conformance}
 	The first major problem was in specifying exactly what metadata should be input into the prototype metadata registry, in particular how to translate or transform existing models or meta-models into the set of constructs defined and discussed in the standard. To illustrate this issue, consider taking a data item from an existing medical dataset, in this case COSD, as shown in figure~\ref{fig:cosdreferral}.
 	
-	\begin{figure*}[h]
-		\includegraphics[scale=0.36]{figs/COSD_BreastCancerReferrals}
-		\caption{COSD Dataset Excerpt}
-		\label{fig:cosdreferral}
-	\end{figure*}
+%	\begin{figure*}[h]
+%		\includegraphics[scale=0.36]{figs/COSD_BreastCancerReferrals}
+%		\caption{COSD Dataset Excerpt}
+%		\label{fig:cosdreferral}
+%	\end{figure*}
 	
 	Using ISO11179 we take the \emph{date of clinical assessment} as a data element, however it would be specified with the patient details, since conceptually one would need to describe the context of the data item, this results in a data element which has an object property of \emph{patient} as an integral part of the construct. This is illustrated in Table~\ref{tab:isoobjects}
 	\begin{table}[h]
@@ -624,6 +714,7 @@
 	\subsection{Experimental Results}
 	\section{Results}
 	\section{Discussion}
+	\section{Related Work}
 	\section{Conclusion}
 	
 	

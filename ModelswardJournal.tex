@@ -60,8 +60,19 @@
 	
 	 There is little doubt that the current landcape of the internet and the availability of large amounts of computing power provide a surplus of valuable data, especially in the healthcare domain, from which new knowledge can be obtained. Data is being collected not just in hospitals but on devices used and worn by patients, and this data if correctly matched up can provide valuable feedback on the efficacy of treatment regimes and new drugs. However the capability of the hardware has run far ahead of the abillity of software to integrate that data, always assuming there is willingness to do so. 
 	 
-	 In the first section of this paper we review the kind of data that is collected in the healthcare sector, then in the next section we look at the data standards available and provide an evaluation of their strengths and weaknesses. Also included in this section is a brief overview of the ISO standard for metadata registries (ISO11179) which was taken as a model for the initial experimentation.
+	 In the first section of this paper we review the kind of data that is collected in the healthcare sector, then in the next section we look at the data standards available and provide an evaluation of their strengths and weaknesses. In section 3 we identify the objectives behind this research, in section 4 we identify the methods and methodology used to achieve the objectives. In section 5 we explain the results, and then in section 6 we evaluate these results.
+	 
+	 \section{Objectives} 
+	 The objectives in carrying out this research were to examine ways of automating the process of curating data elements for the construction of research datasets. Our focus was to test:
+	 \begin{itemize}
+	 	\item a) Testing ISO11179 implementation to see if it would improve semantic interoperability between heterogeneous datasets, and thus enable or enhance automated data curation.
+	 	\item b) If there are other techniques, such as model driven engineering that could be applied to this problem of automating dataset curation
+	 \end{itemize} 
+ One the key objectives was to ensure the preservation of semantics in the datasets being curated. The data pipeline may involve several individual transformations of datasets, with anonymisation and pseudonimization techniques being applied before the data is stored in its final data warehouse, and it is essential that the data semantics be preserved if the information is to be of any use to researchers. 
 	
+	
+
+	\section{Background}
 	\subsection{Data}
 	Data exists in many forms, primarily we are concerned in this study with healthcare data, which for the most part is derived from clinical systems and applications, however in this discussion we also consider data from mobile devices, Internet of Things (IOT) devices and social media. Data can be stored in many forms, the following section gives a brief overview of current data storage practise in the healthcare sector.
 	\subsubsection{Spreadsheet and Delimited Date}
@@ -76,17 +87,16 @@
 	This is not yet common in our experience in the healthcare sector, but it is likely to become so in the near future. The standard storage for Hadoop and big data engines is a storage file, of which there are three in common usage: ORC, Parquet and AVRO. The first two are column-based, whilst the last is row-based, the latter also has the ability ot store the complete data schema, i.e. the metadata, in the file.
 	\subsubsection{Relational Database}
 	For the most part the output from relational databases is in text delimited or XML forms, as discussed earlier, there is the possibility to output in a SQL format, but unless the whole database is going to be replicated this is not a flexible way to transfer or move data.
-
-
-	\section{Data Standards}
+	\subsection{Data Standards}
 	Data Standards are used in healthcare, and are seen as a key component "for unleashing the potential of clinical data for
-   diverse scenarios of (re-) use"~\cite{Schulz2019}. However whilst lip service is paid to their usage, there is a diverse set of standards being used at present, which makes widespread adoption difficult. An outline of some of the different data standards is given in table~\ref{tab:datastandards}
+   diverse scenarios of (re-) use"~\cite{Schulz2019}. However whilst lip service is paid to their usage, there is a diverse set of standards being used at present, which makes widespread adoption difficult. An outline of some of the different data standards is given in Table~\ref{tab:datastandards}.
+   
 	 \begin{table}[!htbp]
 		\begin{center}
 			\caption{A Sample of Data Standards in Healthcare}
 			\label{tab:datastandards}
-			\begin{tabular}{ p{3cm} | p{6cm} | p{5cm }  } 
-				\textbf{Name} & \textbf{Description} & \textbf{Source} \\
+			\begin{tabular}{ p{3cm} | p{5cm} | p{4cm }  } 
+				\textbf{Name} & \textbf{Description} & \textbf{Origin} \\
 				\hline
 				SNOMED CT & Clinical Terminology&  International Health Terminology Standards Development Organisation (IHTSDO)  \\ 
 				\hline
@@ -124,16 +134,16 @@
 	\end{table}
 	
 	
-	\FloatBarrier
+
 	
 	During the course of this work the first six of these data standards were frequently referenced, the others less so or possibly not at all. So we give a brief summary of some of the attributes of the different standards.
 	
 	\subsection{SNOMED CT}
-	SNOMED clinical terminology is a clinical terminology, consisting of medical terms, codes, definitions and relatinships,  Originally called the systemised nomenclature of medicine (SNOMED) in 1975, it has been combined with a number of other terminologies since then to become SNOMED CT, and it is now it is probably the most widely used clinical terminology in the world. It is now defined using description logic, which allows a number of features, probably the most notable is the existence of both pre- and post-coordinated terms. Post-coordinated terms allow new terms to be composed from combinations of exisiting terms using an expression language, however this can result in particular complex terms being expressed using both a pre-coordinated and a post-coordingated term. This complexitity is not popular with many organizations tasked with implementing SNOMED CT. 
+	SNOMED clinical terminology is a clinical terminology, consisting of medical terms, codes, definitions and relatinships,  Originally called the systemised nomenclature of medicine (SNOMED) in 1975, it has been combined with a number of other terminologies since then to become SNOMED CT, and it is now it is probably the most widely used clinical terminology in the world. It is now defined using description logic, which allows a number of features, probably the most notable is the existence of both pre- and post-coordinated terms. Post-coordinated terms allow new terms to be composed from combinations of exisiting terms using an expression language, however this can result in particular complex terms being expressed using both a pre-coordinated and a post-coordingated term. This complexity is not popular with many organizations tasked with implementing SNOMED CT. SNOMED CT has over 300,000 terms defined, and more than 1.3 million relationships.
 	
 	\subsection{Fast Healthcare Interoprability Resources (FHIR)}
     Fast Healthcare Interoperability Resources (FHIR) is the latest set of standards from the \emph{Health Level 7} standards body, who previously developeda number of other standards including HL7 Version 2.x Messaging Standard, HL7 Version 3.x Messaging Standard, Continuity of Care Document (CCD) and Clinical Document Architecture (CDA). They have been widely adopted by both the American National Standards Institute (ANSI) and the International Standards Organization (ISO). The standard defines a messaging REST(API) which can exchange resources, these are built using XML or JSON using a pre-defined set of models, describing most instances of data exchange in the healthcare domain.
-    The stand is made up of five main sections:
+    The standard is made up of five main sections:
     \begin{itemize}
     	\item Foundations: the core rules for building and structuring XML/JSON resources
     	\item Implementation support, including terminology, security, exchange rules and conformance
@@ -141,245 +151,397 @@
     	\item Record Keeping
     	\item Clinical Reasoning
     \end{itemize}
+It has been widely adopted in the UK for two main reasons, firstly it is very much geared to developers, the toolkits, documentation and used of formats such as JSON mean that it is easy and quick to implement. Secondly it is all about messaging, and thus it doesn't require much change in legacy systems.
 		
 	\subsection{International Classification of Diseases (ICD)}
 	
+	The World Health Organisation (WHO) manages a set of clinical diagnostic codes collectively known as the International Classification of Diseases(ICD). ICD-11 is the current version of the standards, however ICD-10/9/8 are in common usage in the UK. It has evolved from proposals in 1860 to classify hospital data, in particular causes of death. The standard started with a simply system for classifying death called the Bertillon Classification of Causes of Death, introduced in 1890, since then the classification has progressed in a coding system called the International Statistical Classification of Diseases, Injuries, and Causes of Death into the International Classification of Diseases. As well as descriptions of diseases it includes signs, symptoms, abnormal findings, complaints, social circumstances, and external causes of injury or disease.  
+	
+	ICD-11 provided full ontological and terminological support for the whole systems, using the web ontology langauge as its formal basis. It also has mappings into SNOMED CT which uses the same formal specification basis.
+	
 	
 	\subsection{OpenEHR - ISO EN 13606}
-	
-	
+	This is an open source standard developed from the ground up by clinicians, guided by the ISO13606~\cite{ISO13606} standard. The standard itself specifies a means for communicating part or all of the electronic health record (EHR) of one or more identified subjects of care between EHR systems, or between EHR systems and a centralised EHR data repository.
+	The openEHR websites states that "the openEHR mission is the construction of an open, vendor neutral platform for electronic health records and interoperable clinical and research data. The openEHR Foundation was established in 2003 in pursuit of this ambition. Its work has been framed and informed by three guiding principles: technical rigour, clinical engagement and trust."
+	The community directs its efforts into educations, building standards compliant or OpenEHR-compliant software tools and platforms, contributing to the ISO standards, and specifying a software models and terms for clinical usage using it's own (OMG-compliant) archetype language. Much of this effort in the UK goes into trying to align FHIR and OpenEHR. Unlike FHIR, and despite the communities best efforts the learning curve involved in learning the relatively unknown modeling language for specifying archetypes and templates seems to have prevented wider adoption of the standard. The alignment of OpenEHR with ISO13606 is an advantage for implementors as it means alignment with international standards with much less effort.
 	\subsection{OMOP CDM}
-	
+	The research organisation called the Observational Health Data Sciences and Informatics (OHDSI) took over a program, from the FDA and the Pharmacuetical Industry to develop a common data model. The motivation stems from side effects that were not spotted quickly enough in drugs trial programs due to the diverse way in which data was stored and analysed. The idea behind a common data model is that if data is transformed and stored in a uniform pre-defined format, then the same queries can be run continuously over the data, and any new anomalies, such as negative interactions between different treatment regimes, can be spotted quickly. The common data model is used widely in the US and Europe and has been used successfully to carry out large-scale statistical analysis across patients taking prescribed medication. There are other common data models in use, OMOP CDM has been selected for use by Genomics England, and recently emerged as the best common data model for a community EHR-registry~\cite{GARZA2016333}.
 	\subsection{LOINC}
-	
+	The Logical Observation Identifiers Names and Codes (LOINC), was started in 1994 and first release in 1997. It is a standard for identifying health measurements, observations, and documents connected with medical laboratory reports. It encompasses a rich catalog of codified measurements, laboratory tests, and clinical measures as well as templated for reports documents and forms. It is centred on pathology, and is more granular and detailed in this area than either SNOMED CT or the ICD-11, and can be used in conjunction with FHIR to encode laboratory information into FHIR messaging services.
 	\subsection{NHS Data Dictionary}
+	Version 3 of the NHS Data Dictionary is a standard for clinical models, forms and data elements used within the NHS. It is based on a core UML data model, which is transformed and made available through HTML browsers on the NHS Data Dictionary website, and through a variety of packaged datasets available through the NHS's Terminology Reference Data update (TRUD) service website, alongside NHS-conformant versions of SNOMED CT, ICD-10, and Read codes. 
 	
-	
+	The TRUD website allows NHS users to download specifications in PDF, XML/XSD and excel files for both the core NHS Data Dictionary models and for these other standards, for instance SNOMED CT can be downloaded as a set of tables which can be loaded into most commonly used SQL databases. For the most part in this discussion the term NHS Data Dictionary will refer to data elements specified in the UML model which sites behind the NHS Data Dictionary website, and which doesn't include these other data standards.
 	
 	\subsection{ISO11179}
-		Metadata can be recorded using a metadata registry; a metadata registry (MDR) is a toolkit which allows definitions of datasets to be stored, curated and managed. Metadata is usually defined as \emph{data about data}; this is an unfortunate definition, in that it can be interpreted in a variety of ways. Our work relates to data management and for most data management purposes it is normally taken to mean data which defines the structure of data, although data about the governance, provenance and other aspects of that data can also be relevant, and thus included in a metadata registry. By storing the definitions of every data element and also the relationships between data elements in a metadata registry a map of all the data elements and data flows in an organization or domain can be created. Such a \emph{map} can be used to manage, understand and curate the datasets being used. The ISO standard 11179 is a standard for metadata registries, although this designation is extended in the body of the standard.
 	
-	The ISO11179 \cite{ISO11179} standard, was issued in 2015, is composed of 6 parts:
-	\begin{itemize}
-		\item ISO/IEC 11179-1:2015 Framework (referred to as ISO/IEC 11179-1)
-		\item ISO/IEC 11179-2:2005 Classification
-		\item ISO/IEC 11179-3:2013 Registry metamodel and basic attributes
-		\item ISO/IEC 11179-4:2004 Formulation of data definitions
-		\item ISO/IEC 11179-5:2015 Naming and identification principles
-		\item ISO/IEC 11179-6:2015 Registration	
-	\end{itemize}
-	The standard is comprehensive, however we are only considering some key aspects of Part 3 in this research. Part 7 called \emph{Datasets}, is planned and is currenly under review. This introduces a metamodel for datasets into the standard, however this was not readily available at the time that this research was carried out, and is not considered here. To quote from the standard itself:
-	\begin{quote}
+	ISO11179 is a standard for metadata registries, and a fairly detailed desciption of the standard was included in~\cite{modelsward19}. We repeat some key details about ISO11179 in this section.  Its purposes are listed in the standard as being the following:
+		\begin{quote}
 		ISO/IEC 11179 addresses the semantics of data, the representation of data and the registration of the descriptions of that data. It is through these descriptions that an accurate understanding of the semantics and a useful depiction of the data are found. 
-	\end{quote}
-	The purpose of ISO/IEC 11179 is to promote the following:
-	\begin{itemize}
-		\item standard description of data
-		\item common understanding of data across organizational elements and between organizations
-		\item re-use and standardization of data over time, space, and applications
-		\item harmonization and standardization of data within an organization and across organizations
-		\item management of the components of descriptions of data
-		\item re-use of the components of descriptions of data
-	\end{itemize}
+	\end{quote} 
+ 	Furthermore the standard states that it is it's purpose to promote:
+	\begin{quote}
+		\begin{itemize}
+			\item standard description of data
+			\item common understanding of data across organizational elements and between organizations
+			\item re-use and standardization of data over time, space, and applications
+			\item harmonization and standardization of data within an organization and across organizations
+			\item management of the components of descriptions of data
+			\item re-use of the components of descriptions of data
+	    \end{itemize}
+    \end{quote} 	
+
+
+
+\subsubsection{ISO11179 Structure}
+
+The ISO11179 \cite{ISO11179} standard, was re-issued in 2015, is composed of 6 parts, some dating back to 2004/5 when the standard was first published:
+\begin{itemize}
+	\item ISO/IEC 11179-1:2015 Framework (referred to as ISO/IEC 11179-1)
+	\item ISO/IEC 11179-2:2005 Classification
+	\item ISO/IEC 11179-3:2013 Registry metamodel and basic attributes
+	\item ISO/IEC 11179-4:2004 Formulation of data definitions
+	\item ISO/IEC 11179-5:2015 Naming and identification principles
+	\item ISO/IEC 11179-6:2015 Registration	
+\end{itemize}
+There is a Part 7 called \emph{Datasets},currently under review, but expected to be published by the end of 2019. This introduces a metamodel for datasets into the standard, however this was not readily available at the time that this research was carried out, and is not considered here. To quote from the standard itself:
+\begin{quote}
+	ISO/IEC 11179 addresses the semantics of data, the representation of data and the registration of the descriptions of that data. It is through these descriptions that an accurate understanding of the semantics and a useful depiction of the data are found. 
+\end{quote}
+The purpose of ISO/IEC 11179 is to promote the following:
+\begin{itemize}
+	\item standard description of data
+	\item common understanding of data across organizational elements and between organizations
+	\item re-use and standardization of data over time, space, and applications
+	\item harmonization and standardization of data within an organization and across organizations
+	\item management of the components of descriptions of data
+	\item re-use of the components of descriptions of data
+\end{itemize}
+
+Part 3 of the standard provides a registry metamodel, specified using UML diagrams, and it was thus chosen as the starting point for building this implementation. There is a warning at the beginning of Part 3, stating that this part \emph{ prescribes a conceptual model, not a physical implementation } This part of ISO/IEC 11179 also prescribes a list of basic attributes (see clause 12) for situations where a full conceptual model is not required or not appropriate. The other 5 parts were used to inform the core metadata registry metamodel as specified in ISO11179: Part 3.
+
+\subsubsection{Semantic Interoperability}
+
+One of the key ideas behind ISO11179 is that of semantic interoperability, and although semantic interoperability is not directly referenced in the standard, there are many references to the \emph{semantics} of a data element, and how this can be assigned to data element by application of the standard. For instance part One states that "Metadata registries (MDR), addresses the semantics of data, the representation of data, and the registration of the descriptions of that data. It is through these descriptions that an accurate understanding of the \emph{semantics} and a useful depiction of the data are found.". The text continues with "An MDR manages the \emph{semantics} of data.". 
+
+Users of ISO11179 metadata registries assert that if a data element has the same object class and property then this is sufficient to capture the semantics and context of a data element. If the semantics are captured in this way then 2 data elements can be compared and shown to be semantically equivalent. The flaw in this argument is that the object class and property are determined by the data curators definitions, and it is possible even if the two data elements being compared are semantically identical they may have differences in naming which prevent them showing up as being semantically equivalent.  Users of ISO11179 conformant metadata registries also claim that semantic equivalance can be achieved through careful classification and naming of data elements, Part 1 A.5.2 states that :"All this means care must be applied when using the MDR, both from the metadata management perspective and the perspective of the user of data described by it. Two different organizations might register descriptions of equivalent data in the form of data elements, yet those data elements might look substantially different. Looked at in a different way, just because two data element descriptions differ does not mean they cannot be describing similar if not equivalent data." 
+
+Thus the standard strives to include semantics into the canonical metadata registry design, however it does not put forward way of coding the semantics making them machine readable. The ability to match, or to create a mapping or relationship between two data elements depends on how the object class, property and other entities are defined. In fact the standard does not specify a way to map or compare data elements, which one of the reasons that the standards conformant metadata registry needed to be modified in this study.
+
+	\FloatBarrier
+
+\section{Methodology}
+The work he is informed by the motivational example in the next subsection, which identifies the key benefits of taking a standards-based approach to data transformation and management rather than sticking with an ad-hoc approach. The next section reviews the promised benefits of implementing ISO11179, the section after that details our experience in this regard, followed by a section detailing the revised approach taken using model driven engineering techniques. This is followed by a section detailing the new domain specific language devised to implement the key interoperability issues originally identified in the ISO11179 standard.
+
+\subsection{Motivational Example}
+Consider a very simplified example of the problems associated with collecting and analysing large quantities of heterogeneous data. Let's take as an example the idea that a data scientist needs a monthly update from 4 hospital trusts to make a particular analysis, and for this she needs 3 key data items: gender, clinical finding, outcome, in addition to the patient details, and date of outcome/finding, to carry out this analysis. Lets suppose this data is being updated on a monthly basis, so in the course of a year we have 12 datasets input, from each of 4 hospital trusts, making a total of 48 datasets. Let's also suppose that this analysis is carried out over a 4 year period. In total we are seeking to examine 48 monthly datasets for each Trust, since there are 4 trusts and 3 key data points, this makes a total of 576 data points, although date and id will also be needed to position the data, so that gives 6 data items in each dataset, giving 1152 data items. 
+
+It may be that each trust is sending the data directly from the system of origin, however it is more likely it has already been curated against some internal or possibly external data standard. For our purposes here we can assume that one Trust is sending the data on an ad-hoc bases, and the other 3 are referencing the data to national standards, lets assume 2 Trusts use the NHS Data Dictionary for some items and LOINC for other items and that 1 Trust uses SNOMED CT as a data standard.
+
+If no data standards are being used then each data items from each trust needs be examined and compared to the destination data item specification, it is possible that the data item specification may be the same, but it is more likely that some kind of transformation will be required. If data standards are being used, then it is neccessary to determine how they are being used, it may be that instead of using full codes shortened enumerations are being used instead, so these need to be mapped to the target code in the standard.
+
+Figure~\ref{fig:dataInput} shows the way the data might look when input to our research data aggregation system, let's call this the input state. the data from each trust consists of 4 records covering 6 data items, however the headers are not neccessarily the same, and neither is the data formatting. Our researcher needs consistant data in the form shown in Figure~\ref{fig:researchData}, let's call this the research state where the data is conforming to the target data model, in this case the OMOP Common Data Model. 
+\begin{figure}[h]
+	\includegraphics[scale=0.440]{figs/dataInput}
+	\caption{Illustrative Sample of Heterogeneous Data}
+	\label{fig:dataInput}
+\end{figure}
+
+\begin{figure}[h]
+	\includegraphics[scale=0.30]{figs/researchData}
+	\caption{Illustrative Sample of Homogeneous Research Quality Data}
+	\label{fig:researchData}
+\end{figure}
+
+What effort is required to transform the dataset in Figure~\ref{fig:dataInput} to the dataset shown in Figure~\ref{fig:researchData}? How can we describe and specify the process so that it can be atomated? What techniques can be used to carry out this automation process? The amount of data in this simple example is relatively small for illustrative purposes, but to be useful we need to be able to apply the techniques evaluated to datasets of much larger sizes, at least 1000 times as large. 
+
+We assume here that if a dataset is coded to a known data standard, then all the relevant checks can be carried out by machine, apart from the initial linking of the source dataset to the target dataset.
+
+If we consider data input from Trust A being input into the research data system. It is an ad-hoc dataset, arguably it has a kind of data dictionary in that the header descriptions provide metadata which applies to the whole column of data. A lookup has to be performed from this header or data description to the OMOP code, and then each text item needs to be translated. Since there is no definition for the ad-hoc data we need to perform 4 manual transformation (MT) checks, one for each data item, and we need to do this for each input data report which arrives, unless we are prepared to make assumptions with regard to the data input. In practise this would probably involve our researcher writing a script to transform the data input, and then needing to check the output, at least for errors, manually each time it is run. It is likely over this 4 year period that the data formats will change at least twice. For the period of the study we will therefore need to carry out 192 MT's, just for Trust A which is sending out data on an ad-hoc basis. If this was the case for all the trusts then we would be looking at figure of 764 MT's.
+
+For the other 3 Trusts two data standards are in play, so we need to build a transformation from each data input(source) item to each research(target) data item. A manual transformation check will be needed to verify a particular link from the data input format to the research data format. Since there are only 2 data standards in play we need only identify 8 links to make the transformation for the 12 items originating from the 3 Trusts. This may change of course if any of the standards are updated, which is quite likely in a 4 year period. So let us assume the standards change twice in this period, it means that over the 48 month period we will need to update these 8 links twice, so in terms of manual transformation checks we can assign a value of 24 for the period. 
+
+Overall we can see that having standards in play reduces the amount of manual checking from a factor of 764 to 216 MT's, an approximate 80\% reduction in manual intervention. If we now add into our model the notion that the data being sent over more than just 2 nodes. Very often data will originate in one patient record system in a Hospital Trust, but it will then be transfered to another Trust in the same group, or to a staging area, such a Genomic Medicine Centre, which is responsible for aggregating that data. This means that it will go through another layer of transformation. In other words, the journey from source to the researcher will involve twice as many transformation potentially. 
+
+Our researcher is looking at 3 key data items, and to do this the data pipeline will require 216 MT's. If we extend the data set to one containing say 600 data items, and assume that it passes 2 sets of transformations then we get a figure of 86,400 MT's over the period. This may not seem that excessive, but the problem is that each manual transformation check requires human computation and a repetitious attention to detail, and this is not something everybody is good at. If one check takes 30 second then it will take about 4.5 months to ensure the datasets are conformant. This is a significant amount of time over a 4 year working period, time much better spent on data analysis.  
+
+If these checks can be carried out automatically then we are likely to improve the data quality as well as reducing the time taken to obtain high quality research data. If we manage to get all 4 Trusts to stick to 2 data standards then we can reduce the manual checks to 24 for 3 data items, which translates to 480 MT's, and at 30 seconds each we arrive at about 4 hours of tedious checking over the 4 year period. The rest of the transformation and checking work can be carried out by machine. This motivational example shows how the amount of time taken to ensure transformational correctness and data quality can be reduced by significant factors by using a standards based approach. We still need to show the most efficient way of implementing that approach. 
+
+\subsubsection{Examples of Coding for the example datasets}	
+
+For person phenotypic sex in the NHS Data Dictionary we use:
+\begin{itemize}
+	\item 1	Male
+	\item 2	Female
+	\item 9	Indeterminate (unable to be classified as either male or female)
+\end{itemize}
+But for Person stated gender we use:
+\begin{itemize}
+	\item 0	Not Known
+	\item 1	Male
+	\item 2	Female
+	\item 9	Not Specified
+\end{itemize}
+So these codes will need to be linked to the target gender codes as used inOMOP:
+\begin{itemize}
+	\item FEMALE (concept_id=8532)
+	\item MALE (concept_id=8507)
+	\item UNKNOWN INFORMATION (concept_id=0 )
+\end{itemize}
+ 
+
+For Loinc we have:
+\begin{itemize}
+	\item 1 Identifies as male http://snomed.info/sct ©: 446151000124109 Identifies as male gender (finding)  LA22878-5	 
+	 \item 2    	 	Identifies as female http://snomed.info/sct ©: 446141000124107 Identifies as female gender (finding)    	 	LA22879-3	 
+	 \item 3    	 	Female-to-male transsexual http://snomed.info/sct ©: 407377005 Female-to-male transsexual (finding)    	 	LA22880-1	 
+	 \item 4    	 	Male-to-female transsexual http://snomed.info/sct ©: 407376001 Male-to-female transsexual (finding)    	 	LA22881-9	 
+	 \item 5    	 	Identifies as non-conforming http://snomed.info/sct ©: 446131000124102 Identifies as non-conforming gender (finding)    	 	LA22882-7	 
+	 \item 6    	 	Other    LA46-8	 
+	 \item 7    	 	Asked but unknown    
+\end{itemize}
+
+
+and for SNOMED CT we have:
+\begin{itemize}
+	\item  1.	Feminine gender (finding SCTID: 703118005)
+	\item  2.	Gender unknown (finding: SCTID: 394743007)
+	\item  3.	Gender unspecified (finding:SCTID: 394744001)
+	\item  4.	Masculine gender (finding SCTID: 703117000)
+	\item  5.	Non-binary gender (finding SCTID: 1066981000000107)
+	\item  6.	Surgically transgendered transsexual (finding SCTID: 407375002)
+	\item  7.	Surgically transgendered transsexual, female-to-male (SCTID: 407379008)
+	\item  8.	Surgically transgendered transsexual, male-to-female (SCTID: 407378000)
+	\item  9.	Transgender identity (finding:SCTID: 12271241000119109)
+\end{itemize}
+The 7 LOINC values can be mapped directly to the 9-value SNOMED CT listing, however in some cases mis-matches can occur and more metadata is required to make the mapping. For instance in transforming a data item linked to SCTID: 407375002 to a LOINC based dataset it is not known in detail whether the Surgically transgered transexual is male-to-female or female-to-male and therefore the mapping would probably be to item 5 or 6. A further transformation back to SNOMED CT would lose the information which was previously present in the dataset.
+
+NHS Data Dictionary National Codes, for the Cancer Outcomes and Services Data Set, LIVER CIRRHOSIS CAUSE TYPE is recorded during a Liver Cancer Care Spell.
+\begin{itemize}
+	\item 1	Alcohol excess
+	\item 2	Hepatitis B virus infection
+	\item 3	Hepatitis C virus infection
+	\item 4	Non alcohol related fatty liver disease
+	\item 5	Hereditary haemochromatosis
+	\item 8	Other (not listed)
+\end{itemize}
+ 
+This motivational example shows how the manual checking time for transforming data items can be reduced by applying machine readable data standards to dataset management. Of course in reality there are other issues at play, however by employing machine readable standard it can be shown that the time taken to manage these datasets can be reduced from 4.4 months to 4 hours. We will show later that this time can be reduced to minutes by using metadata registries to store the data standard profile in a machine readable manner. 
+
+\subsection{Key issues highlighted by ISO11179}
+
+\subsubsection{Publishing}
+
+\subsubsection{Versioning}
+\subsubsection{Semantics}
+\subsubsection{Data Quality}
+\subsubsection{Unique Identifiers}
+
+\subsection{MDML - Metadata Modelling Language}
+
+\subsubsection{}
+
+\subsection{Experimental Results}
+
+
+
+
+
+
 	
-	Part 3 of the standard provides a registry metamodel, specified using UML diagrams, and it was thus chosen as the starting point for building this implementation. There is a warning at the beginning of Part 3, stating that this part \emph{ prescribes a conceptual model, not a physical implementation } This part of ISO/IEC 11179 also prescribes a list of basic attributes (see clause 12) for situations where a full conceptual model is not required or not appropriate. The other 5 parts were used to inform the core metadata registry metamodel as specified in ISO11179: Part 3.
-	
-	
-	\subsubsection{Part 3 - Registry Metamodel and Basic Attributes}
-	The objectives of the metadata registry \emph{metamodel} are defined, in the standard, as:
-	\begin{itemize}
-		\item Providing a unified view of the concepts, terms, value domains and value meanings
-		\item promoting a common understanding of the data described
-		\item providing the specification at a conceptual level to facilitate the sharing and reuse of the contents of the implementations
-	\end{itemize}
-	The standard continues to split the metamodel up into 6 packages, Basic, Registration, Concepts, Binary relations, Data description and Identification, Designation and Definition.
-	%\begin{figure}[ht]
-	%	\centering
-	%	\includegraphics[scale=0.39]{figs/ISOPackages}
-	%	\caption{ISO11179 Metamodel Packages} 
-	%	\label{fig:isopackages}
-	%	\end{figure}
-	In section 4 it is pointed out that clauses 7-9 are needed to implement a \textbf{Concept Systems Registry}, clause 10 will allow the implementation of an \textbf{Extended Concept Systems Registry}, and clause 11 specifies a metadata registry, whereas an \textbf{extended metadata registry} will implement all clauses 7-11. Our initial scope was to implement an extended metadata registry as described in clauses 7-11.
-	
-	\subsubsection{Data Description Package}
-	This package specifies a metamodel for handling \emph{data}, and although it references other packages which are mostly dealing with the more administrative aspects of registering metadata, it primarily puts forward a conceptual metamodel for handling data. Hence for the purposes of data interoperability it is the most relevant part of the standard.
-	
-	The core model given for data description in ISO11179 is that reproduced in Figure~\ref{fig:ddview}, it shows the linkage between a Data Element, a Value Domain, a Conceptual Domain and a Data Element Concept. The area above the dotted red line is defined as the \emph{semantic or conceptual} level, whereas the area below the red dotted line is defined as the \emph{representational} level. The assumption is that the Data Element and Value Domain are objects which are being registered and classified, as per the processes defined in other parts of the standard. 
-	
-	This arrangement can be illustrated by the idea of a visit to the doctor, we can define a concept called \emph{reason for visit to healthcare centre} and call this a data element concept, and from this we would implement a data element called \emph{reason for attendance} and perhaps represent that with a set of enumerated codes, each representing a different reason. In ISO11179 structuring we would split the data element concept into an object class: Person, and a property: Reason for clinic attendance. 
-	
-	
-%	\begin{figure}[h]
-%		\includegraphics[scale=0.450]{figs/ISO11179SimpleCore}
-%		\caption{ISO 11179 Data Description}
-%		\label{fig:ddview}
-%	\end{figure}
-	
-	
-	\subsubsection{Evaluation of ISO/IEC11179(2013)Part 3}
-	Part 3 of the standard, titled \emph{Registry Metamodel and basic attributes}, and revised in 2013, was taken as the reference point for building the Metadata Registry implementation. In reviewing the standard several problems came to light, especially with regard to implementation, and especially with regard to any kind of conformity. These are listed as:
-	\begin{itemize}
-		\item ISO11179 introduces representational items, such as \emph{Conceptual Domain, Data Element, Data Element Concept, etc}, indicating that they are part of the \emph{standard or ideal metadata registry metamodel} with no indication of how the ISO11179-compliant models so defined are generated, used or related, nor how data can be transformed into this particular model or what the actual advantage is over any other metamodel/model.
-		\item Partial UML models are specified at different levels of granularity, with no explicit connection to show how they relate.
-		\item The text does not allow an overall model to be built with any degree of certainty of whether or not it conforms to the standard.
-		\item Basic types used in the \emph{metamodel} include types which in most computer science contexts would be viewed as derived types, this makes implementation needlessly difficult and confusing.
-		\item The introduction asserts that metadata registry is specified in the form of a conceptual data model, however, despite references to other standards, and a brief explanation in Appendix E, no definitive explanation of what is meant by \emph{conceptual data model} is provided. 
-		\item The examples provided are very concept specific, for instance, the example of country codes works for concepts which are used as a list, but many concepts used in healthcare are not used in such a straightforward fashion. 
-		\item Many concepts and terms are described, some are specified, and some specifications overlap with other definitions; for instance value domains are specified with the same definition that is used to describe data types.
-		\item The UML models provide a great deal of detail for each sub-section of a metadata registry, however no system diagram or clear description is provided, it is therefore impossible to build a working system based on the UML diagrams alone, considerable interpretation is required, which detracts from the specification provided.
-	\end{itemize}
-	The standard is declared as being a standard for metadata registries, and although it contains a lot of disparate ideas on the subject of interoperability which can be applied to a metadata registry, no core set of definitions, core language or metamodel was found that could be used as a measure for conformance.  Standards by definition should be conformed to, and whilst conformance is mentioned, it is lacking a clear set of definitions which can be used as a measurement for conformity.  Therefore the goal of building an ISO11179 \emph{conformant} metadata registry was abandoned early on, when it became apparent that clear objective conformance criteria were not present in the standard, despite the subject of conformance being discussed. That said, there is much in the standard document which can be usefully incorporated into the design of a metadata registry, and development continued with a view to include those aspects of the standards which could be shown to be beneficial to the construction of a metadata registry. 
-	
-	\section{Implementation}
-	In the initial design work, the UML diagrams contained in Part 3 section 11 was taken to be the basic metamodel around which the core metadata registry would be built.
-	%, as shown in Figure~\ref{fig:cvview}.
-	
-	%\begin{figure}[h]
-	%	\includegraphics[scale=0.35]{figs/ConceptualAndValueDomain}
-	%	\caption{ISO 11179 Conceptual And Value Domain}
-	%	\label{fig:cvview}
-	%	\end{figure}
-	As detailed here, this very quickly became unworkable, mostly as a result of user's being unable to translate data structures into the form dictated by the ISO11179 metamodel.
-	
-	\subsection{Implementation of ISO11179  UML Metamodel}
-	
-	Initially work began by implementing the UML models as specified in the standard (part 3, section 11), however when the initial prototype was run, many pieces of information were identified as being loaded more than once. Due to the model provided, there is an overlap of the \emph{conceptual structure} of the metamodel, and the \emph{logical structure} of the metamodal, although no such reference is available in the standard itself. Initially a basic domain model was built, using a Grails 2.4.3 toolkit, using the following basic representational items shown in the first column of Table~\ref{tab:metamodelconstructs}
-	
-	The work was then shown to analysts and clinicians experienced in building healthcare datasets, with a view to having them enter suitable datasets and then take part in developing the data set curation functionality around the ISO11179 conformant metamodel.
-	
-	\subsection{Concerns over ISO11179 Conformance}
-	The first major problem was in specifying exactly what metadata should be input into the prototype metadata registry, in particular how to translate or transform existing models or meta-models into the set of constructs defined and discussed in the standard. To illustrate this issue, consider taking a data item from an existing medical dataset, in this case COSD, as shown in figure~\ref{fig:cosdreferral}.
-	
-%	\begin{figure*}[h]
-%		\includegraphics[scale=0.36]{figs/COSD_BreastCancerReferrals}
-%		\caption{COSD Dataset Excerpt}
-%		\label{fig:cosdreferral}
-%	\end{figure*}
-	
-	Using ISO11179 we take the \emph{date of clinical assessment} as a data element, however it would be specified with the patient details, since conceptually one would need to describe the context of the data item, this results in a data element which has an object property of \emph{patient} as an integral part of the construct. This is illustrated in Table~\ref{tab:isoobjects}
-	\begin{table}[h]
-		\begin{center}
-			\caption{ISO11179 Cancer Referral Representation}
-			\label{tab:isoobjects}
-			\begin{tabular}{ p{2cm} | p{4cm}  } 
-				\textbf{ISO Artefact} & \textbf{Description} \\
-				\hline
-				Data Element & Patient and Date of clinical Assessment in form ccyy-mm-dd  \\ 
-				\hline
-				Data Element Concept & Patient and Date of clinical Assessment  \\ 
-				\hline
-				Value Domain & Date in form ccyy-mm-dd \\ 
-				\hline
-				Object Class & Patient\\
-				\hline
-				Property& Diagnosis Date \\
-			\end{tabular}
-		\end{center}
-	\end{table}
-	
-	However if one is trying to enter the metadata for the \emph{Date of Clinical Assessment} shown in the first row of~figure\ref{fig:cosdreferral}, there is an immediate disparity in that no object class is specified, available or immediately obvious from the spreadsheet. There is mention of the outpatient or patient in the description, however it is not in the view of the analyst preparing the dataset of any significance, and therefore was not included in a separate column. Therefore there is immediately a dilemma, do we enter \emph{outpatient, patient} or simply leave the object property blank? The next issue is the idea of having the data element, if we drop the \emph{Patient} from the name and then call the data element \emph{Date of Clinical Assessment}, what then is the \emph{Data Element Concept}? and how is it different from the description of the \emph{Data Element}? Should the Data Element Concept include the patient? There is no obvious answer, and from a user perspective it appears that a simple set of dataset metadata, i.e. column headings on a spreadsheet, are being transformed into something more complex in order to manage them, but that management can only be carried out by experts versed in ISO/IEC11179.
-	
-	\subsubsection{User Difficulties}
-	In the first few weeks of trying to enter standard existing healthcare datasets into the prototype metadata registry many objections were encountered from users experience with existing healthcare datasets, of the kind documented in the previous section. Metadata was seen to be entered twice or three times needlessly, the difference between the description of a \emph{Data Element} and a \emph{Data Element Concept} was not understood. Likewise the difference between a \emph{Value Domain} and a \emph{Data Type} whilst apparent in theory, was in practise not apparent, since the models being generated were not implementation specific. Therefore a representation of a set of numerical values would in nearly all cases be represented by the same data type, for instance the \emph{date of clinical assessment} would have a value domain of \emph{date} and a data type of \emph{date}, which would then be implemented in a particular system as appropriate, e.g. text string, org.joda.time.format.DateTimeFormat as appropriate by the system concerned. 
-	
-	\subsection{Update to Meta-Model}
-	After a few weeks it was decided to update the metamodel, at first, the number of ISO11179 elements was reduced, however this still didn't gain any traction with users, who found the system confusing, non-intuituve, time-consuming and needing a lot of extra work to understand the new language constructs introduced by the standard. As a result the development went through a two iterations to arrive at the current model, the initial prototype we refer to as version 0.x, the second as 1.x and the third as 2.x. The third, has been fairly successful as is being used at over 7 hospital trusts and healthcare research centres in the UK currently. The changes in core constructs are shown in Table~\ref{tab:metamodelconstructs}.
-	%, and a screen shot of the metadata registry after the first iteration shown in Figure~\ref{fig:mdr1}
-	
-	\begin{table}[h]
-		\begin{center}
-			\caption{Metamodel Domain Constructs}
-			\label{tab:metamodelconstructs}
-			\begin{tabular}{ p{3cm} | p{3cm}  } 
-				\textbf{ISO Artefact (v.0.x)} &  \textbf{Iteration 2 (v.2.x)} \\
-				\hline
-				Described Conceptual Domain &   -  \\ 
-				\hline
-				Object Class &  DataClass     \\ 
-				\hline
-				Property &   -   \\ 
-				\hline
-				Data Element Concept &   -   \\
-				\hline
-				Data Element &    DataElement \\
-				\hline
-				DataType &  DataType  \\
-				\hline
-				Value Domain &   -\\
-				\hline
-				Described Value Domain &  -    \\
-				\hline
-				Enumerated Value Domain &   EnumeratedType    \\
-				\hline
-				Permissible Value &  -  \\
-				\hline
-				Enumerated Conceptual Domain &  -    \\
-				\hline
-				Relations & Relationship   \\
-				\hline
-				- &  RelationshipMetadata \\
-				\hline
-				- &  RelationshipType \\
-				\hline
-				Classification &  - \\
-				\hline
-				Concept System  &    \\
-				\hline
-				Concept  & -   \\
-				\hline
-				Classifiable Item & CatalogueElement  \\
-				\hline
-				Measurement Unit & MeasurementUnit \\
-				\hline
-				Measure Class &   -  \\
-				\hline
-				Dimensionality &   -  \\
-				\hline
-				- & Asset \\
-				\hline
-				- & AssetFile \\
-				\hline
-				- &   ExtensionValue  \\
-				\hline
-				-  & Mapping  \\
-				\hline
-				- &  DataModel  \\
-				\hline
-				- &   DataModelPolicy \\
-				\hline
-				- &   PrimitiveType \\
-				\hline
-				- &   ReferenceType \\
-				\hline
-				- &   Tag \\
-				\hline
-				- &   ValidationRule \\
-			\end{tabular}
-		\end{center}
-	\end{table}
+ 
 	
 	
-	% \begin{figure}[h]
-	%	\includegraphics[scale=0.13]{figs/MCV1_UI}
-	%	\caption{MDR UI (v1.x)}
-	%	\label{fig:mdr1}
-	% \end{figure}
-	The first iteration resulted in version 1.x of the metadata registry, which went into service in Genomics England in 2015, however it met with many criticisms from users, and a complete overhaul was undertaken. This time a different approach was used, and the basic metamodel redeveloped, informed more by feedback from data analysts than reliance on the ISO/IEC11179 standard. The domain metamodel was developed using XText, which allowed for the fast iterative development of the metamodel, using the Eclipse toolkit. Once this was established the domain model was implemented using the Grails framework (v2.5.6), which allowed much of the existing codebase to be re-used.
-	-----
 	
 	
-	Description - as previous
-	
-	-------
-	\subsubsection{Semantic Interoperability}
-	
-	One of the key concepts behind ISO11179 is that of semantic interoperability, and although semantic interoperability is not directly referrenced in the standard, there are many references to the \emph{semantics} of a data element, and how this can be assigned to data element by application of the standard. For instance part One states that "Metadata registries (MDR), addresses the semantics of data, the	representation of data, and the registration of the descriptions of that data. It is through these descriptions that an accurate understanding of the semantics and a useful depiction of the data are found.". The text continues with "An MDR manages the semantics of data.". 
-	
-	Users of ISO11179 metadata registries assert that if a data element has the same object class and property then this is sufficient to capture the semantics and context of a data element. If the semantics are captured in this way then 2 data elements can be compared and shown to be semantically equivalent. The flaw in this argument is that the object class and property are determined by the data curators definitions, and it is possible even if the two data elements being compared are semantically identical they may have differences in naming which prevent them showing up as being semantically equivalent.  Users of ISO11179 conformant metadata registries also claim that semantic equivalance can be achieved through careful classification and naming of data elements, Part 1 A.5.2 states that :"All this means care must be applied when using the MDR, both from the metadata management perspective and the perspective of the user of data described by it. Two different organizations might register descriptions of equivalent data in the form of data elements, yet those data elements might look substantially different. Looked at in a different way, just because two data element descriptions differ does not mean they cannot be describing similar if not equivalent data." 
-	
-	Thus the standard acknowledges that while it strives to include semantics into the canonical metadata registry design, it does not put forward way of making the semantics machine readable and thus automatic. The ability to match two data elements depends on how the object class, property and other entities are defined, which is prone to interpretation and human error.
-	
-	
+%	\subsubsection{Part 3 - Registry Metamodel and Basic Attributes}
+%	The objectives of the metadata registry \emph{metamodel} are defined, in the standard, as:
+%	\begin{itemize}
+%		\item Providing a unified view of the concepts, terms, value domains and value meanings
+%		\item promoting a common understanding of the data described
+%		\item providing the specification at a conceptual level to facilitate the sharing and reuse of the contents of the implementations
+%	\end{itemize}
+%	The standard continues to split the metamodel up into 6 packages, Basic, Registration, Concepts, Binary relations, Data description and Identification, Designation and Definition.
+%	%\begin{figure}[ht]
+%	%	\centering
+%	%	\includegraphics[scale=0.39]{figs/ISOPackages}
+%	%	\caption{ISO11179 Metamodel Packages} 
+%	%	\label{fig:isopackages}
+%	%	\end{figure}
+%	In section 4 it is pointed out that clauses 7-9 are needed to implement a \textbf{Concept Systems Registry}, clause 10 will allow the implementation of an \textbf{Extended Concept Systems Registry}, and clause 11 specifies a metadata registry, whereas an \textbf{extended metadata registry} will implement all clauses 7-11. Our initial scope was to implement an extended metadata registry as described in clauses 7-11.
+%	
+%	\subsubsection{Data Description Package}
+%	This package specifies a metamodel for handling \emph{data}, and although it references other packages which are mostly dealing with the more administrative aspects of registering metadata, it primarily puts forward a conceptual metamodel for handling data. Hence for the purposes of data interoperability it is the most relevant part of the standard.
+%	
+%	The core model given for data description in ISO11179 is that reproduced in Figure~\ref{fig:ddview}, it shows the linkage between a Data Element, a Value Domain, a Conceptual Domain and a Data Element Concept. The area above the dotted red line is defined as the \emph{semantic or conceptual} level, whereas the area below the red dotted line is defined as the \emph{representational} level. The assumption is that the Data Element and Value Domain are objects which are being registered and classified, as per the processes defined in other parts of the standard. 
+%	
+%	This arrangement can be illustrated by the idea of a visit to the doctor, we can define a concept called \emph{reason for visit to healthcare centre} and call this a data element concept, and from this we would implement a data element called \emph{reason for attendance} and perhaps represent that with a set of enumerated codes, each representing a different reason. In ISO11179 structuring we would split the data element concept into an object class: Person, and a property: Reason for clinic attendance. 
+%	
+%	
+%%	\begin{figure}[h]
+%%		\includegraphics[scale=0.450]{figs/ISO11179SimpleCore}
+%%		\caption{ISO 11179 Data Description}
+%%		\label{fig:ddview}
+%%	\end{figure}
+%	
+%	
+%	\subsubsection{Evaluation of ISO/IEC11179(2013)Part 3}
+%	Part 3 of the standard, titled \emph{Registry Metamodel and basic attributes}, and revised in 2013, was taken as the reference point for building the Metadata Registry implementation. In reviewing the standard several problems came to light, especially with regard to implementation, and especially with regard to any kind of conformity. These are listed as:
+%	\begin{itemize}
+%		\item ISO11179 introduces representational items, such as \emph{Conceptual Domain, Data Element, Data Element Concept, etc}, indicating that they are part of the \emph{standard or ideal metadata registry metamodel} with no indication of how the ISO11179-compliant models so defined are generated, used or related, nor how data can be transformed into this particular model or what the actual advantage is over any other metamodel/model.
+%		\item Partial UML models are specified at different levels of granularity, with no explicit connection to show how they relate.
+%		\item The text does not allow an overall model to be built with any degree of certainty of whether or not it conforms to the standard.
+%		\item Basic types used in the \emph{metamodel} include types which in most computer science contexts would be viewed as derived types, this makes implementation needlessly difficult and confusing.
+%		\item The introduction asserts that metadata registry is specified in the form of a conceptual data model, however, despite references to other standards, and a brief explanation in Appendix E, no definitive explanation of what is meant by \emph{conceptual data model} is provided. 
+%		\item The examples provided are very concept specific, for instance, the example of country codes works for concepts which are used as a list, but many concepts used in healthcare are not used in such a straightforward fashion. 
+%		\item Many concepts and terms are described, some are specified, and some specifications overlap with other definitions; for instance value domains are specified with the same definition that is used to describe data types.
+%		\item The UML models provide a great deal of detail for each sub-section of a metadata registry, however no system diagram or clear description is provided, it is therefore impossible to build a working system based on the UML diagrams alone, considerable interpretation is required, which detracts from the specification provided.
+%	\end{itemize}
+%	The standard is declared as being a standard for metadata registries, and although it contains a lot of disparate ideas on the subject of interoperability which can be applied to a metadata registry, no core set of definitions, core language or metamodel was found that could be used as a measure for conformance.  Standards by definition should be conformed to, and whilst conformance is mentioned, it is lacking a clear set of definitions which can be used as a measurement for conformity.  Therefore the goal of building an ISO11179 \emph{conformant} metadata registry was abandoned early on, when it became apparent that clear objective conformance criteria were not present in the standard, despite the subject of conformance being discussed. That said, there is much in the standard document which can be usefully incorporated into the design of a metadata registry, and development continued with a view to include those aspects of the standards which could be shown to be beneficial to the construction of a metadata registry. 
+%	
+%	\section{Implementation}
+%	In the initial design work, the UML diagrams contained in Part 3 section 11 was taken to be the basic metamodel around which the core metadata registry would be built.
+%	%, as shown in Figure~\ref{fig:cvview}.
+%	
+%	%\begin{figure}[h]
+%	%	\includegraphics[scale=0.35]{figs/ConceptualAndValueDomain}
+%	%	\caption{ISO 11179 Conceptual And Value Domain}
+%	%	\label{fig:cvview}
+%	%	\end{figure}
+%	As detailed here, this very quickly became unworkable, mostly as a result of user's being unable to translate data structures into the form dictated by the ISO11179 metamodel.
+%	
+%	\subsection{Implementation of ISO11179  UML Metamodel}
+%	
+%	Initially work began by implementing the UML models as specified in the standard (part 3, section 11), however when the initial prototype was run, many pieces of information were identified as being loaded more than once. Due to the model provided, there is an overlap of the \emph{conceptual structure} of the metamodel, and the \emph{logical structure} of the metamodal, although no such reference is available in the standard itself. Initially a basic domain model was built, using a Grails 2.4.3 toolkit, using the following basic representational items shown in the first column of Table~\ref{tab:metamodelconstructs}
+%	
+%	The work was then shown to analysts and clinicians experienced in building healthcare datasets, with a view to having them enter suitable datasets and then take part in developing the data set curation functionality around the ISO11179 conformant metamodel.
+%	
+%	\subsection{Concerns over ISO11179 Conformance}
+%	The first major problem was in specifying exactly what metadata should be input into the prototype metadata registry, in particular how to translate or transform existing models or meta-models into the set of constructs defined and discussed in the standard. To illustrate this issue, consider taking a data item from an existing medical dataset, in this case COSD, as shown in figure~\ref{fig:cosdreferral}.
+%	
+%%	\begin{figure*}[h]
+%%		\includegraphics[scale=0.36]{figs/COSD_BreastCancerReferrals}
+%%		\caption{COSD Dataset Excerpt}
+%%		\label{fig:cosdreferral}
+%%	\end{figure*}
+%	
+%	Using ISO11179 we take the \emph{date of clinical assessment} as a data element, however it would be specified with the patient details, since conceptually one would need to describe the context of the data item, this results in a data element which has an object property of \emph{patient} as an integral part of the construct. This is illustrated in Table~\ref{tab:isoobjects}
+%	\begin{table}[h]
+%		\begin{center}
+%			\caption{ISO11179 Cancer Referral Representation}
+%			\label{tab:isoobjects}
+%			\begin{tabular}{ p{2cm} | p{4cm}  } 
+%				\textbf{ISO Artefact} & \textbf{Description} \\
+%				\hline
+%				Data Element & Patient and Date of clinical Assessment in form ccyy-mm-dd  \\ 
+%				\hline
+%				Data Element Concept & Patient and Date of clinical Assessment  \\ 
+%				\hline
+%				Value Domain & Date in form ccyy-mm-dd \\ 
+%				\hline
+%				Object Class & Patient\\
+%				\hline
+%				Property& Diagnosis Date \\
+%			\end{tabular}
+%		\end{center}
+%	\end{table}
+%	
+%	However if one is trying to enter the metadata for the \emph{Date of Clinical Assessment} shown in the first row of~figure\ref{fig:cosdreferral}, there is an immediate disparity in that no object class is specified, available or immediately obvious from the spreadsheet. There is mention of the outpatient or patient in the description, however it is not in the view of the analyst preparing the dataset of any significance, and therefore was not included in a separate column. Therefore there is immediately a dilemma, do we enter \emph{outpatient, patient} or simply leave the object property blank? The next issue is the idea of having the data element, if we drop the \emph{Patient} from the name and then call the data element \emph{Date of Clinical Assessment}, what then is the \emph{Data Element Concept}? and how is it different from the description of the \emph{Data Element}? Should the Data Element Concept include the patient? There is no obvious answer, and from a user perspective it appears that a simple set of dataset metadata, i.e. column headings on a spreadsheet, are being transformed into something more complex in order to manage them, but that management can only be carried out by experts versed in ISO/IEC11179.
+%	
+%	\subsubsection{User Difficulties}
+%	In the first few weeks of trying to enter standard existing healthcare datasets into the prototype metadata registry many objections were encountered from users experience with existing healthcare datasets, of the kind documented in the previous section. Metadata was seen to be entered twice or three times needlessly, the difference between the description of a \emph{Data Element} and a \emph{Data Element Concept} was not understood. Likewise the difference between a \emph{Value Domain} and a \emph{Data Type} whilst apparent in theory, was in practise not apparent, since the models being generated were not implementation specific. Therefore a representation of a set of numerical values would in nearly all cases be represented by the same data type, for instance the \emph{date of clinical assessment} would have a value domain of \emph{date} and a data type of \emph{date}, which would then be implemented in a particular system as appropriate, e.g. text string, org.joda.time.format.DateTimeFormat as appropriate by the system concerned. 
+%	
+%	\subsection{Update to Meta-Model}
+%	After a few weeks it was decided to update the metamodel, at first, the number of ISO11179 elements was reduced, however this still didn't gain any traction with users, who found the system confusing, non-intuituve, time-consuming and needing a lot of extra work to understand the new language constructs introduced by the standard. As a result the development went through a two iterations to arrive at the current model, the initial prototype we refer to as version 0.x, the second as 1.x and the third as 2.x. The third, has been fairly successful as is being used at over 7 hospital trusts and healthcare research centres in the UK currently. The changes in core constructs are shown in Table~\ref{tab:metamodelconstructs}.
+%	%, and a screen shot of the metadata registry after the first iteration shown in Figure~\ref{fig:mdr1}
+%	
+%	\begin{table}[h]
+%		\begin{center}
+%			\caption{Metamodel Domain Constructs}
+%			\label{tab:metamodelconstructs}
+%			\begin{tabular}{ p{3cm} | p{3cm}  } 
+%				\textbf{ISO Artefact (v.0.x)} &  \textbf{Iteration 2 (v.2.x)} \\
+%				\hline
+%				Described Conceptual Domain &   -  \\ 
+%				\hline
+%				Object Class &  DataClass     \\ 
+%				\hline
+%				Property &   -   \\ 
+%				\hline
+%				Data Element Concept &   -   \\
+%				\hline
+%				Data Element &    DataElement \\
+%				\hline
+%				DataType &  DataType  \\
+%				\hline
+%				Value Domain &   -\\
+%				\hline
+%				Described Value Domain &  -    \\
+%				\hline
+%				Enumerated Value Domain &   EnumeratedType    \\
+%				\hline
+%				Permissible Value &  -  \\
+%				\hline
+%				Enumerated Conceptual Domain &  -    \\
+%				\hline
+%				Relations & Relationship   \\
+%				\hline
+%				- &  RelationshipMetadata \\
+%				\hline
+%				- &  RelationshipType \\
+%				\hline
+%				Classification &  - \\
+%				\hline
+%				Concept System  &    \\
+%				\hline
+%				Concept  & -   \\
+%				\hline
+%				Classifiable Item & CatalogueElement  \\
+%				\hline
+%				Measurement Unit & MeasurementUnit \\
+%				\hline
+%				Measure Class &   -  \\
+%				\hline
+%				Dimensionality &   -  \\
+%				\hline
+%				- & Asset \\
+%				\hline
+%				- & AssetFile \\
+%				\hline
+%				- &   ExtensionValue  \\
+%				\hline
+%				-  & Mapping  \\
+%				\hline
+%				- &  DataModel  \\
+%				\hline
+%				- &   DataModelPolicy \\
+%				\hline
+%				- &   PrimitiveType \\
+%				\hline
+%				- &   ReferenceType \\
+%				\hline
+%				- &   Tag \\
+%				\hline
+%				- &   ValidationRule \\
+%			\end{tabular}
+%		\end{center}
+%	\end{table}
+%	
+%	
+%	% \begin{figure}[h]
+%	%	\includegraphics[scale=0.13]{figs/MCV1_UI}
+%	%	\caption{MDR UI (v1.x)}
+%	%	\label{fig:mdr1}
+%	% \end{figure}
+%	The first iteration resulted in version 1.x of the metadata registry, which went into service in Genomics England in 2015, however it met with many criticisms from users, and a complete overhaul was undertaken. This time a different approach was used, and the basic metamodel redeveloped, informed more by feedback from data analysts than reliance on the ISO/IEC11179 standard. The domain metamodel was developed using XText, which allowed for the fast iterative development of the metamodel, using the Eclipse toolkit. Once this was established the domain model was implemented using the Grails framework (v2.5.6), which allowed much of the existing codebase to be re-used.
+%	-----
+%	
+%	
+%	Description - as previous
+%	
+%	-------
+%	
+%	
 	
 	
 %	
@@ -707,11 +869,7 @@
 
 
 	
-	\section{Metamodel}
-	\section{Metadata Management Language (MDML)}
-	\section{Tranforming Models and Metadata}
-	\subsection{Transformation Experiment}
-	\subsection{Experimental Results}
+
 	\section{Results}
 	\section{Discussion}
 	\section{Related Work}
